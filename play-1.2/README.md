@@ -4,8 +4,10 @@
 
 ## Overview
 This is a project to add swagger to play-framework; an implementation of the Swagger spec.  
-You can find out more about both the spec and the framework at http://swagger.wordnik.com.  
-For more information about Wordnik's APIs, please visit http://swagger.io
+You can find out more about both the spec and the framework at http://swagger.io.  
+For more information about Swagger, please visit http://swagger.io
+
+This project supports the 1.2 swagger specification only!
 
 ### Prerequisites
 You need the following installed and available in your $PATH:
