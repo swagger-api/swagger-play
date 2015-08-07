@@ -1,0 +1,16 @@
+self: play -> swagger-play 0.1
+
+require:
+    - play
+    - com.wordnik -> swagger-core_2.8.1 1.1-SNAPSHOT.120119:
+        exclude:
+          - org.slf4j -> *
+          - org.jboss.weld -> *
+          - javax.persistence -> *
+
+repositories:
+    - sonatype:
+        type:       iBiblio
+        root:       "https://oss.sonatype.org/content/repositories/releases/"
+        contains:
+            - com.wordnik -> *
