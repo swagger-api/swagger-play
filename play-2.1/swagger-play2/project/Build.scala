@@ -11,13 +11,15 @@ object ApplicationBuild extends Build {
   val appDependencies: Seq[sbt.ModuleID] = Seq(
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.1.3",
     "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.4",
-    "org.slf4j" % "slf4j-api" % "1.6.4",
-    "com.wordnik" %% "swagger-jaxrs" % "1.3.4",
+    "org.slf4j" % "slf4j-api" % "1.6.2",
+    "com.wordnik" %% "swagger-jaxrs" % "1.3.1",
     "javax.ws.rs" % "jsr311-api" % "1.1.1",
+    "play" %% "play" % "2.1-07132012",
+    "play" %% "play-test" % "2.1-07132012",
     "org.mockito" % "mockito-core" % "1.9.5" % "test")
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-    crossScalaVersions := Seq("2.10.1", "2.10.4"),
+    crossScalaVersions := Seq("2.9.1", "2.10.4"),
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
       if (v.trim.endsWith("SNAPSHOT"))

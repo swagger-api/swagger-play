@@ -2,16 +2,13 @@
 // logLevel := Level.Warn
 
 resolvers ++= Seq(
+    "Maven central" at "http://repo1.maven.org/maven2",
     "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
-    DefaultMavenRepository,
-    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    Resolver.url("Play", url("http://download.playframework.org/ivy-releases/"))(Resolver.ivyStylePatterns)
+    "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
+    DefaultMavenRepository
 )
 
-resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.1")
-
+// addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.1")
