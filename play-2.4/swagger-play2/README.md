@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rayyildiz/swagger-play.svg?branch=master)](https://travis-ci.org/rayyildiz/swagger-play)
+
 # Swagger Play2 Module
 
 ## Overview
