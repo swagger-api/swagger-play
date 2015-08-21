@@ -3,6 +3,7 @@ import Keys._
 import play.sbt.Play.autoImport._
 import play.sbt.PlayScala
 import PlayKeys._
+import play.ebean.sbt.PlayEbean
 
 object ApplicationBuild extends Build {
   val appName = "swagger-play2"
@@ -10,7 +11,7 @@ object ApplicationBuild extends Build {
 
   checksums in update := Nil
 
-  scalaVersion:= "2.10.4"
+  scalaVersion:= "2.11.6"
 
   val appDependencies = Seq(
     "org.slf4j"          % "slf4j-api"       % "1.6.4",
@@ -23,8 +24,8 @@ object ApplicationBuild extends Build {
     "com.typesafe.play" %% "play-java-ebean" % "2.3.0"            % "test")
 
   val main = Project(appName, file(".")).enablePlugins(PlayScala, PlayEbean).settings(
-    crossScalaVersions := Seq("2.10.4", "2.11.1"),
-    scalaVersion := "2.10.4",
+    crossScalaVersions := Seq("2.11.6", "2.11.7"),
+    scalaVersion := "2.11.6",
     version := appVersion,
     libraryDependencies ++= appDependencies,
     publishTo <<= version { (v: String) =>
@@ -62,6 +63,11 @@ object ApplicationBuild extends Build {
           <id>ayush</id>
           <name>Ayush Gupta</name>
           <email>ayush@glugbot.com</email>
+        </developer>
+        <developer>
+          <id>rayyildiz</id>
+          <name>Ramazan AYYILDIZ</name>
+          <email>rayyildiz@gmail.com</email>
         </developer>
       </developers>,
     resolvers := Seq(
