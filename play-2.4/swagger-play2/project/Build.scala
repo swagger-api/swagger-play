@@ -6,7 +6,7 @@ import PlayKeys._
 
 object ApplicationBuild extends Build {
   val appName = "swagger-play2"
-  val appVersion = "1.3.12"
+  val appVersion = "1.3.13"
 
   checksums in update := Nil
 

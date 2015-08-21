@@ -4,6 +4,8 @@
 This is a module to support the play2 framework from [playframework](http://www.playframework.org).  It is written in scala but can be used with either java or scala-based play2 applications.
 
 ## Version History
+* swagger-play2 1.3.13 supports play 2.4.  If you need 2.2 support, use 1.3.7 or earlier.
+
 * swagger-play2 1.3.12 supports play 2.3.  If you need 2.2 support, use 1.3.7 or earlier.
 
 * swagger-play2 1.3.7 supports play 2.2.  If you need 2.1 support, please use 1.3.5 or earlier
@@ -13,7 +15,7 @@ This is a module to support the play2 framework from [playframework](http://www.
 * swagger-play2 1.2.1 and greater support scala 2.10 and play 2.0 and 2.1.
 
 * swagger-play2 1.2.0 support scala 2.9.x and play 2.0, please use 1.2.0.
- 
+
 Usage
 -----
 
@@ -43,7 +45,7 @@ There are just a couple steps to integrate your Play2 app with swagger.
 
 GET     /api-docs               controllers.ApiHelpController.getResources
 
-``` 
+```
 
 2.  Annotate your REST endpoints with Swagger annotations.  This allows the Swagger framework to create the [api-declaration](https://github.com/swagger-api/swagger-core/wiki/API-Declaration) automatically!
 
