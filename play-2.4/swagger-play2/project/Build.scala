@@ -16,6 +16,9 @@ object ApplicationBuild extends Build {
     "org.slf4j"          % "slf4j-api"       % "1.6.4",
     "com.wordnik"       %% "swagger-jaxrs"   % "1.3.12",
     "javax.ws.rs"        % "jsr311-api"      % "1.1.1",
+    "org.specs2"        %% "specs2-core"     % "3.6"              % "test",
+    // "org.specs2"        %% "specs2-core"     % "3.6"              % "test",
+    "org.specs2"        %% "specs2-mock"     % "3.6"              % "test",
     "org.mockito"        % "mockito-core"    % "1.9.5"            % "test",
     "com.typesafe.play" %% "play-java-ebean" % "2.3.0"            % "test")
 

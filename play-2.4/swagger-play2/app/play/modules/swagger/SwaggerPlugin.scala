@@ -52,8 +52,8 @@ class SwaggerPlugin(application: Application) extends Plugin {
     SwaggerContext.registerClassLoader(current.classloader)
     ConfigFactory.config.apiVersion = apiVersion
     ConfigFactory.config.basePath = basePath
-    ScannerFactory.setScanner(new PlayApiScanner(current.routes))
-    ClassReaders.reader = Some(new PlayApiReader(current.routes))
+    ScannerFactory.setScanner(new PlayApiScanner(Some(current.routes)))
+    ClassReaders.reader = Some(new PlayApiReader(Some(current.routes)))
 
     current.configuration.getString("swagger.filter") match {
       case Some(e) if (e != "") => {

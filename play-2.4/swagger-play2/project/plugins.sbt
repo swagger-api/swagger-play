@@ -12,7 +12,8 @@ resolvers ++= Seq(
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.0")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.0")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.1")
 
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
