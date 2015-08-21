@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
-import play.Play.autoImport._
-import play.PlayScala
+import play.sbt.Play.autoImport._
+import play.sbt.PlayScala
 import PlayKeys._
 
 object ApplicationBuild extends Build {
@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
     "org.mockito"        % "mockito-core"    % "1.9.5"            % "test",
     "com.typesafe.play" %% "play-java-ebean" % "2.3.0"            % "test")
 
-  val main = Project(appName, file(".")).enablePlugins(PlayScala).settings(
+  val main = Project(appName, file(".")).enablePlugins(PlayScala, PlayEbean).settings(
     crossScalaVersions := Seq("2.10.4", "2.11.1"),
     scalaVersion := "2.10.4",
     version := appVersion,
