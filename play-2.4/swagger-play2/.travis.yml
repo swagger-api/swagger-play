@@ -1,0 +1,7 @@
+nguage: scala
+scala:
+  - 2.10.4
+  - 2.11.6
+  - 2.11.7
+script:
+  - "sbt ++$TRAVIS_SCALA_VERSION compile test"
