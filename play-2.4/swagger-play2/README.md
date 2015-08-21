@@ -25,7 +25,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 val appDependencies: Seq[sbt.ModuleID] = Seq(
-  "com.wordnik" %% "swagger-play2" % "1.3.12"
+  "com.wordnik" %% "swagger-play2" % "1.3.13"
 )
 ```
 
