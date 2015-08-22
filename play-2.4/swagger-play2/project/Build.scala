@@ -76,6 +76,7 @@ object ApplicationBuild extends Build {
       "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
       "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases",
       "java-net" at "http://download.java.net/maven/2",
+      "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
       "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"))
 }
