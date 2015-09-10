@@ -1,9 +1,7 @@
-import sbt._
-import Keys._
-import play.sbt.Play.autoImport._
-import play.sbt.PlayScala
-import PlayKeys._
 import play.ebean.sbt.PlayEbean
+import play.sbt.PlayScala
+import sbt.Keys._
+import sbt._
 
 object ApplicationBuild extends Build {
   val appName = "swagger-play2"
@@ -77,5 +75,6 @@ object ApplicationBuild extends Build {
       "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases",
       "java-net" at "http://download.java.net/maven/2",
       "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"))
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"))
 }
