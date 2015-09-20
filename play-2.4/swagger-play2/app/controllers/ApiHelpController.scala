@@ -63,7 +63,7 @@ class ErrorResponse(@XmlElement var code: Int, @XmlElement var message: String) 
   def setMessage(message: String) = this.message = message
 }
 
-object ApiHelpController extends SwaggerBaseApiController {
+class ApiHelpController extends SwaggerBaseApiController {
 
   def getResources = Action {
     request =>
@@ -146,7 +146,7 @@ class SwaggerBaseApiController extends Controller {
         Logger("swagger").debug("reference: %s".format(ref.toString))
     }
     ResourceListing(
-      ConfigFactory.config.getApiVersion, 
+      ConfigFactory.config.getApiVersion,
       ConfigFactory.config.getSwaggerVersion,
       references,
       ConfigFactory.config.authorizations,
