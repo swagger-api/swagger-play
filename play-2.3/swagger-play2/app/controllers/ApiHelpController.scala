@@ -94,9 +94,9 @@ object ApiHelpController extends SwaggerBaseApiController {
           val msg = new ErrorResponse(500, "api listing for path " + path + " not found")
           Logger("swagger").error(msg.message)
           if (returnXml(request)) {
-            InternalServerError.chunked(Enumerator(toXmlString(msg).getBytes)).as("application/xml")
+            InternalServerError.chunked(Enumerator(toXmlString(msg).getBytes("UTF-8"))).as("application/xml")
           } else {
-            InternalServerError.chunked(Enumerator(toJsonString(msg).getBytes)).as("application/json")
+            InternalServerError.chunked(Enumerator(toJsonString(msg).getBytes("UTF-8"))).as("application/json")
           }
       }
   }
@@ -190,7 +190,7 @@ class SwaggerBaseApiController extends Controller {
 
   protected def XmlResponse(data: Any) = {
     val xmlValue = toXmlString(data)
-    Ok.chunked(Enumerator(xmlValue.getBytes)).as("application/xml")
+    Ok.chunked(Enumerator(xmlValue.getBytes("UTF-8"))).as("application/xml")
   }
 
   protected def returnValue(request: Request[_], obj: Any): Result = {
@@ -211,6 +211,6 @@ class SwaggerBaseApiController extends Controller {
 
   protected def JsonResponse(data: Any) = {
     val jsonValue = toJsonString(data)
-    Ok.chunked(Enumerator(jsonValue.getBytes)).as("application/json")
+    Ok.chunked(Enumerator(jsonValue.getBytes("UTF-8"))).as("application/json")
   }
 }
