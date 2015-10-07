@@ -26,7 +26,7 @@ case class RouteEntry(httpMethod: String, path: String)
 
 object SwaggerUtils {
   def convertPathString(str: String) = {
-    str.replaceAll( """<\[[\^/\d-\w]*\]\+>""", "}").replaceAll("\\$", "{")
+    str.replaceAll("""<[^>]+>""", "}").replaceAll("\\$", "{")
   }
 }
 
