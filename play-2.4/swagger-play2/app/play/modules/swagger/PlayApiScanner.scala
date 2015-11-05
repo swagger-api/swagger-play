@@ -5,13 +5,13 @@ import com.wordnik.swagger.core.SwaggerContext
 import com.wordnik.swagger.config._
 
 import play.api.Logger
-import play.core.Router.Routes
+import play.api.routing.Router
 
 /**
  * Identifies Play Controllers annotated as Swagger API's.
  * Uses the Play Router to identify Controllers, and then tests each for the API annotation.
  */
-class PlayApiScanner(routes: Option[Routes]) extends Scanner {
+class PlayApiScanner(routes: Option[Router]) extends Scanner {
 
   def classes(): List[Class[_]] = {
     Logger("swagger").info("ControllerScanner - looking for controllers with API annotation")
