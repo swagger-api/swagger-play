@@ -8,7 +8,7 @@ import play.api.{Configuration, Environment}
 class SwaggerModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =  Seq(
-    bind[SwaggerPlugin].toProvider[SwaggerPluginProvider].eagerly(),
+    bind[SwaggerPlugin].to[SwaggerPluginImpl].eagerly(),
     bind[ApiHelpController].toSelf.eagerly()
   )
 
