@@ -11,14 +11,15 @@ import com.wordnik.swagger.model.ResponseMessage
 import com.wordnik.swagger.core.ApiValues._
 import com.wordnik.swagger.model.ApiListing
 
-import play.api.{Configuration, Logger}
-import play.core.Router.Routes
+import play.api.Logger
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 
 import javax.ws.rs.core.Context
 import javax.ws.rs._
+
+import play.api.routing.Router
 
 import scala.collection.mutable.ListBuffer
 
@@ -30,11 +31,11 @@ object SwaggerUtils {
   }
 }
 
-class PlayApiReader(val routes: Option[Routes]) extends JaxrsApiReader {
+class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
+
   private var _routesCache: Map[String, RouteEntry] = null
 
-  override
-  def readRecursive(
+  override def readRecursive(
     docRoot: String, 
     parentPath: String, cls: Class[_], 
     config: SwaggerConfig,
@@ -43,7 +44,7 @@ class PlayApiReader(val routes: Option[Routes]) extends JaxrsApiReader {
     val api = cls.getAnnotation(classOf[Api])
 
     // must have @Api annotation to process!
-    if(api != null) {
+    if (api != null) {
       val consumes = Option(api.consumes) match {
         case Some(e) if e != "" => e.split(",").map(_.trim).toList
         case _ => cls.getAnnotation(classOf[Consumes]) match {
@@ -476,4 +477,3 @@ class PlayApiReader(val routes: Option[Routes]) extends JaxrsApiReader {
     method.getReturnType
   }
 }
-

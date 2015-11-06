@@ -32,7 +32,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
   }
 
   // set up mock for Play Router
-  val mockRoutes = mock[play.core.Router.Routes]
+  val mockRoutes = mock[play.api.routing.Router]
   val routesDocumentation: Seq[(String, String, String)] = Seq(
     ("GET", "/api/dog", "test.testdata.DogController.list"),
     ("GET", "/api/dog/:id", "test.testdata.DogController.get1(id: Long)"),

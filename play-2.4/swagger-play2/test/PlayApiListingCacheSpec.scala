@@ -13,7 +13,7 @@ import scala.Some
 class PlayApiListingCacheSpec extends Specification with Mockito {
 
   // set up mock for Play Router
-  val mockRoutes = mock[play.core.Router.Routes]
+  val mockRoutes = mock[play.api.routing.Router]
   val routesDocumentation: Seq[(String, String, String)] = Seq(
     ("GET", "/api/dog", "test.testdata.DogController.list"),
     ("PUT", "/api/dog", "test.testdata.DogController.add1"),
