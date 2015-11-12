@@ -9,7 +9,6 @@ crossScalaVersions := Seq("2.11.6", "2.11.7")
 libraryDependencies ++= Seq(
   "org.slf4j"          % "slf4j-api"       % "1.6.4",
   "com.wordnik"       %% "swagger-jaxrs"   % "1.3.12",
-  "javax.ws.rs"        % "jsr311-api"      % "1.1.1",
   "com.typesafe.play" %% "play-ebean"      % "2.0.0"            % "test",
   "org.specs2"        %% "specs2-core"     % "3.6"              % "test",
   "org.specs2"        %% "specs2-mock"     % "3.6"              % "test",
