@@ -1,6 +1,6 @@
 package testdata
 
-import play.db.ebean._
+import com.avaje.ebean.Model
 
 class Person extends Model {
   var name: String = _
