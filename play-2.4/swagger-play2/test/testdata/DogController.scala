@@ -30,6 +30,12 @@ import scala.concurrent.Future
   )
 )
 object DogController extends Controller {
+  @ApiOperation(value="addDog0")
+  def add0(id:String) = Action {
+    request => Ok("test case")
+  }
+
+
   @ApiOperation(value = "addDog1",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(

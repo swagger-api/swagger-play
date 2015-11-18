@@ -27,9 +27,11 @@ import com.wordnik.swagger.reader.ClassReaders
 import play.api.inject.ApplicationLifecycle
 import play.api.{Logger, Application}
 import play.api.routing.Router
+import play.modules.swagger.routes.Route
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
+import play.modules.swagger.routes.{Route=>PlayRoute,Parameter => PlayParameter}
 
 trait SwaggerPlugin
 
@@ -85,8 +87,19 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   SwaggerContext.registerClassLoader(app.classloader)
   ConfigFactory.config.setApiVersion(apiVersion)
   ConfigFactory.config.setBasePath(basePath)
-  ScannerFactory.setScanner(new PlayApiScanner(Option(router)))
-  ClassReaders.reader = Some(new PlayApiReader(Option(router)))
+
+
+
+  val routes ={
+      play.modules.swagger.routes.RoutesFileParser.parse(app.classloader,"routes","").right.get.collect {
+        case (prefix, route: PlayRoute) => (prefix,route)
+      }
+    }
+
+  ClassReaders.reader = Some(new PlayApiReader(routes))
+
+  ScannerFactory.setScanner(new PlayApiScanner(routes))
+
 
   app.configuration.getString("swagger.filter") match {
     case Some(e) if (e != "") => {
