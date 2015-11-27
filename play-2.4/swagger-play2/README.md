@@ -6,6 +6,9 @@
 This is a module to support the play2 framework from [playframework](http://www.playframework.org).  It is written in scala but can be used with either java or scala-based play2 applications.
 
 ## Version History
+
+* swagger-play2 1.5.0 supports play 2.4 and swagger 2.0.  If you need swagger 1.2 support, use 1.3.13. If you need 2.2 support, use 1.3.7 or earlier.
+
 * swagger-play2 1.3.13 supports play 2.4.  If you need 2.2 support, use 1.3.7 or earlier.
 
 * swagger-play2 1.3.12 supports play 2.3.  If you need 2.2 support, use 1.3.7 or earlier.
@@ -25,7 +28,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "com.wordnik" %% "swagger-play2" % "1.3.13"
+  "io.swagger" %% "swagger-play2" % "1.5.0"
 )
 ```
 
@@ -89,6 +92,8 @@ GET     /pet/:id                 controllers.PetApiController.getPetById(id)
 ```
 
 This will "attach" the /api-docs/pet api to the swagger resource listing, and the method to the `getPetById` method above
+
+Please note that the minimum configuration needed to have a route/controller be exposed in swagger declaration is to have an `Api` annotation at class level.
 
 #### The ApiParam annotation
 

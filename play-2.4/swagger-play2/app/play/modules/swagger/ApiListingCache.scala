@@ -1,33 +1,33 @@
 package play.modules.swagger
 
-import com.wordnik.swagger.config._
-import com.wordnik.swagger.reader._
-import com.wordnik.swagger.core.util.ReaderUtil
+import io.swagger.config._
+import io.swagger.models.Swagger
 import play.api.Logger
 
-object ApiListingCache extends ReaderUtil {
-  var cache: Option[Map[String, com.wordnik.swagger.model.ApiListing]] = None
+object ApiListingCache {
+  var cache: Option[Swagger] = None
 
-  def listing(docRoot: String): Option[Map[String, com.wordnik.swagger.model.ApiListing]] = {
-    cache.orElse{
-      Logger("swagger").info("Loading API metadata")
-      ClassReaders.reader.map{reader =>
-        ScannerFactory.scanner.map(scanner => {
-          val classes = scanner match {
-            case scanner: Scanner => scanner.classes()
-            case _ => List()
-          }
-          Logger("swagger").debug("Classes count: %s".format(classes.length))
-          classes.foreach{ clazz =>
-            Logger("swagger").debug("Controller: %s".format(clazz.getName))
-          }
-          val listings = (for(cls <- classes) yield reader.read(docRoot, cls, ConfigFactory.config)).flatten
-          val mergedListings = groupByResourcePath(listings)
-      
-          cache = Some(mergedListings.map(m => (m.resourcePath, m)).toMap)
-        })
+  def listing(docRoot: String, host: String): Option[Swagger] = {
+    cache.orElse {
+      Logger("swagger").debug("Loading API metadata")
+
+      val scanner = ScannerFactory.getScanner()
+      val classes = scanner.classes()
+      val reader = new PlayReader(null)
+      var swagger = reader.read(classes)
+
+      scanner match {
+        case config: SwaggerConfig => {
+          swagger = config.configure(swagger)
+        }
+        case config => {
+          // no config, do nothing
+        }
       }
+      cache = Some(swagger)
       cache
     }
+    cache.get.setHost(host)
+    cache
   }
 }

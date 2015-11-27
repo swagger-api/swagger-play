@@ -59,10 +59,10 @@ case class HandlerCall(packageName: String, controller: String, instantiate: Boo
  * @param name The name of the parameter.
  * @param typeName The type of the parameter.
  * @param fixed The fixed value for the parameter, if defined.
- * @param default A default value for the parameter, if defined.
+ * @param defaultValue A default value for the parameter, if defined.
  */
-case class Parameter(name: String, typeName: String, fixed: Option[String], default: Option[String]) extends Positional {
-  override def toString = name + ":" + typeName + fixed.map(" = " + _).getOrElse("") + default.map(" ?= " + _).getOrElse("")
+case class Parameter(name: String, typeName: String, fixed: Option[String], defaultValue: Option[String]) extends Positional {
+  override def toString = name + ":" + typeName + fixed.map(" = " + _).getOrElse("") + defaultValue.map(" ?= " + _).getOrElse("")
 }
 
 /**
