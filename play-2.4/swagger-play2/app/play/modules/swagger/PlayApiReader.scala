@@ -4,15 +4,12 @@ import com.wordnik.swagger.annotations._
 import com.wordnik.swagger.config._
 import com.wordnik.swagger.core.util._
 import com.wordnik.swagger.jaxrs.{MutableParameter, JaxrsApiReader}
-import com.wordnik.swagger.model.Parameter
-import com.wordnik.swagger.model.ApiDescription
-import com.wordnik.swagger.model.Operation
-import com.wordnik.swagger.model.ResponseMessage
+import com.wordnik.swagger.model._
 import com.wordnik.swagger.core.ApiValues._
-import com.wordnik.swagger.model.ApiListing
 
 import play.api.Logger
 
+import play.modules.swagger.routes.{Route=>PlayRoute,Parameter => PlayParameter}
 import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 
@@ -23,7 +20,6 @@ import play.api.routing.Router
 
 import scala.collection.mutable.ListBuffer
 
-case class RouteEntry(httpMethod: String, path: String)
 
 object SwaggerUtils {
   def convertPathString(str: String) = {
@@ -31,13 +27,31 @@ object SwaggerUtils {
   }
 }
 
-class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
+case class RouteEntry(prefix:String,route:PlayRoute) {
+  def httpMethod = route.verb.toString
+  def path =  {
+    val path = if (route.path.toString.startsWith("/")){
+      route.path.toString
+    }else{
+      "/"+route.path.toString
+    }
+    SwaggerUtils.convertPathString(path)
+  }
+  def isPathParam(name:String) = route.path.has(name)
+}
 
-  private var _routesCache: Map[String, RouteEntry] = null
+
+
+class PlayApiReader(val routes: List[(String,PlayRoute)]) extends JaxrsApiReader {
+
+
+  private lazy val routesCache: Map[String, RouteEntry] = populateRoutesCache
+
+
 
   override def readRecursive(
-    docRoot: String, 
-    parentPath: String, cls: Class[_], 
+    docRoot: String,
+    parentPath: String, cls: Class[_],
     config: SwaggerConfig,
     operations: ListBuffer[(String, String, ListBuffer[Operation])],
     parentMethods: ListBuffer[Method]): Option[ApiListing] = {
@@ -73,7 +87,7 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
         // only process fields with @ApiParam, @QueryParam, @HeaderParam, @PathParam
         if(field.getAnnotation(classOf[QueryParam]) != null || field.getAnnotation(classOf[HeaderParam]) != null ||
           field.getAnnotation(classOf[HeaderParam]) != null || field.getAnnotation(classOf[PathParam]) != null ||
-          field.getAnnotation(classOf[ApiParam]) != null) { 
+          field.getAnnotation(classOf[ApiParam]) != null) {
           val param = new MutableParameter
           param.dataType = field.getType.getName
           Option (field.getAnnotation(classOf[ApiParam])) match {
@@ -151,7 +165,7 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     // must have @Api annotation to process!
     if (api != null) {
       Logger("swagger").debug("annotation: Api: %s,".format(api.toString))
-      val resourcePath = api.value
+
 
       val consumes = Option(api.consumes) match {
         case Some(e) if e != "" => e.split(",").map(_.trim).toList
@@ -182,19 +196,21 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
 
       // define a Map to hold Operations keyed by resourcepath
       var operationsMap: Map[String, List[Operation]] = Map.empty
+      var defaultRoute:RouteEntry = null
       for (method <- cls.getMethods) {
         // only process methods with @ApiOperation annotations
         if (method.getAnnotation(classOf[ApiOperation]) != null) {
           Logger("swagger").debug("ApiOperation: found on method: %s".format(method.getName))
           val fullMethodName = getFullMethodName(cls, method)
           routesCache.get(fullMethodName) match {
-            case Some(RouteEntry(httpMethod, path)) => {
+            case Some(route:RouteEntry) => {
                // got to remove any path element specified in basepath
-              val operation = readMethod(method, fullMethodName).get
-              val basepathUrl = new java.net.URL(config.getBasePath)
+              val operation = readMethod(method, fullMethodName,route).get
+              val basepathUrl = new java.net.URI(config.getBasePath)
               val basepath = basepathUrl.getPath
-              val resourcePath = path.stripPrefix(basepath)
-              Logger("swagger").debug("method: %s, fullOperationResourcePath: %s, basepath: %s, resourcePath: %s".format(method.getName, path, basepath, resourcePath))
+              defaultRoute = route
+              val resourcePath = route.path.stripPrefix(basepath)
+              Logger("swagger").debug("method: %s, fullOperationResourcePath: %s, basepath: %s, resourcePath: %s".format(method.getName, route.path, basepath, resourcePath))
               // store operations in our Map keyed by resourcepath
               operationsMap = appendOperation(resourcePath, operation, operationsMap)
             }
@@ -210,6 +226,26 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
       }.toList
 
       val models = ModelUtil.modelsFromApis(apiDescriptions)
+
+
+      def removeLastSlash(path:String ) = {
+       if (path.endsWith("/")){
+          if(path.length>1) {
+            path.substring(0,path.length-1)
+          }else{
+            ""
+          }
+        }else path
+      }
+
+      val apiValue = removeLastSlash(api.value)
+
+      val resourcePath = if (defaultRoute!=null) {
+        val prefix = removeLastSlash("/"+defaultRoute.prefix)
+        prefix+apiValue
+      }else{
+        apiValue
+      }
 
       Some(
         ApiListing(
@@ -234,18 +270,22 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     }
   }
 
-  def readMethod(method: Method, fullMethodName: String): Option[Operation] = {
+  def readMethod(method: Method, fullMethodName: String,routeEntry:RouteEntry): Option[Operation] = {
     val apiOperation = method.getAnnotation(classOf[ApiOperation])
-    val routeEntry = routesCache.get(fullMethodName)
 
     if (method.getAnnotation(classOf[ApiOperation]) != null) {
       Logger("swagger").debug("annotation: ApiOperation: %s,".format(apiOperation.toString))
 
-      val httpMethod = routeEntry.map(_.httpMethod).getOrElse(apiOperation.httpMethod)
+      val httpMethod = if ( apiOperation.httpMethod() != "" ){
+        apiOperation.httpMethod()
+      }else{
+        routeEntry.httpMethod
+      }
+
 
       val nickname = apiOperation.nickname match {
         case e: String if e.trim != "" => e
-        case _ => genNickname(fullMethodName, routeEntry.map(_.httpMethod))
+        case _ => genNickname(fullMethodName, httpMethod)
       }
 
       val produces = apiOperation.produces match {
@@ -284,7 +324,10 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
 
       val implicitParams = processImplicitParams(method)
 
-      val params = processParams(method)
+      val params = processParams(method,routeEntry)
+
+
+
 
       Some(Operation(
         httpMethod,
@@ -328,19 +371,23 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     }
   }
 
-  def processParams(method: Method): List[Parameter] = {
+
+  def processParams(method: Method,routeEntry: RouteEntry): List[Parameter] = {
     Logger("swagger").debug("checking for ApiParams")
     val paramAnnotations = method.getParameterAnnotations
     val paramTypes = method.getParameterTypes
     val genericParamTypes: Array[java.lang.reflect.Type] = method.getGenericParameterTypes
 
     val paramList = new ListBuffer[Parameter]
-    for ((annotations, paramType, genericParamType) <- (paramAnnotations, paramTypes, genericParamTypes).zipped.toList) yield {
-      if (annotations.length > 0) {
+    for (((annotations, paramType, genericParamType),i) <- (paramAnnotations, paramTypes, genericParamTypes).zipped.toList.zipWithIndex) yield {
+      val maybeRouteParam = routeEntry.route.call.parameters.flatMap{ ps => ps.lift(i)}
+      Logger("swagger").debug("checking for ApiParams:"+maybeRouteParam.toString)
+      if (annotations.length > 0 || (maybeRouteParam.isDefined && maybeRouteParam.get.fixed.isEmpty ) ) {
         val param = new MutableParameter
         param.dataType = processDataType(paramType, genericParamType)
         param.allowableValues = processAllowableValues(paramType, genericParamType)
-        paramList ++= processParamAnnotations(param, annotations)
+
+        paramList ++= processParamAnnotations(param, annotations,maybeRouteParam.map( routeParam => (routeParam,routeEntry.isPathParam(routeParam.name))) )
       }
     }
 
@@ -360,7 +407,12 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
   }
 
   def processParamAnnotations(mutable: MutableParameter, paramAnnotations: Array[Annotation]): List[Parameter] = {
+    processParamAnnotations(mutable,paramAnnotations,None)
+  }
+
+  def processParamAnnotations(mutable: MutableParameter, paramAnnotations: Array[Annotation],maybeRouteParam:Option[(PlayParameter,Boolean)]): List[Parameter] = {
     var shouldIgnore = false
+
     for (pa <- paramAnnotations) {
       pa match {
         case e: ApiParam => parseApiParamAnnotation(mutable, e)
@@ -389,6 +441,28 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
         case _ =>
       }
     }
+    maybeRouteParam.collect {
+      case (routeParam,isPathParam) if mutable.paramType == null && mutable.name == null =>
+        Logger("swagger").debug("checking for ApiParams:"+routeParam.toString)
+
+        mutable.defaultValue = routeParam.default.map{ v =>
+          if (v.startsWith("\"") && v.endsWith("\"")){
+            v.substring(1,v.length-1)
+          }else{
+            v
+          }
+        }
+        mutable.name = routeParam.name
+        if (mutable.paramType == null) {
+          if (isPathParam) {
+            mutable.required = true
+            mutable.paramType = readString(TYPE_PATH, mutable.paramType)
+          } else {
+            mutable.paramType = readString(TYPE_QUERY, mutable.paramType)
+          }
+        }
+    }
+
     if (!shouldIgnore) {
       if (mutable.paramType == null) {
         mutable.paramType = TYPE_BODY
@@ -408,10 +482,6 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     }
   }
 
-  def routesCache = synchronized {
-    if (_routesCache == null) _routesCache = populateRoutesCache
-    _routesCache
-  }
 
   /**
    * Get the path for a given method
@@ -435,27 +505,18 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     }
   }
 
-  def genNickname(fullMethodName: String, httpMethod: Option[String] = None): String = {
-    httpMethod.getOrElse("") + "_" + fullMethodName.replace(".", "_")
+  def genNickname(fullMethodName: String, httpMethod: String ): String = {
+    httpMethod + "_" + fullMethodName.replace(".", "_")
   }
 
+
+
   private def populateRoutesCache: Map[String, RouteEntry] = {
-    val r = routes.get.documentation
-    (for (route <- r) yield {
-      val httpMethod = route._1
-      val path = SwaggerUtils.convertPathString(route._2)
-      val routeName = {
-        // extract the args in parens
-        val fullMethod = route._3 match {
-          case x if x.indexOf("(") > 0 => x.substring(0, x.indexOf("("))
-          case _ => route._3
-        }
-        val idx = fullMethod.lastIndexOf(".")
-        (fullMethod.substring(0, idx) + "$." + fullMethod.substring(idx + 1)).replace("@", "")
-      }
-      Logger("swagger").debug("Add to route cache:  name: %s, method: %s, path: %s".format(routeName, httpMethod, path))
-      (routeName, RouteEntry(httpMethod, path))
-    }).toMap
+    routes.map { case(prefix, route )=>
+      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+      (routeName, RouteEntry(prefix,route))
+    }.toMap
+
   }
 
   /**
@@ -477,3 +538,4 @@ class PlayApiReader(val routes: Option[Router]) extends JaxrsApiReader {
     method.getReturnType
   }
 }
+

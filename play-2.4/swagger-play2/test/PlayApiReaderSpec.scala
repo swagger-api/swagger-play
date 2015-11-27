@@ -1,3 +1,6 @@
+import java.lang.reflect.Method
+
+import play.api.Logger
 import play.modules.swagger._
 
 import org.specs2.mutable._
@@ -5,6 +8,7 @@ import org.specs2.mock.Mockito
 
 import test.testdata.DogController
 
+import play.modules.swagger.routes.{Route => PlayRoute, Parameter => PlayParameter, _}
 import com.wordnik.swagger.core.SwaggerSpec
 import com.wordnik.swagger.config.SwaggerConfig
 import com.wordnik.swagger.model._
@@ -13,10 +17,12 @@ import org.mockito.Mockito._
 
 class PlayApiReaderSpec extends Specification with Mockito {
   "PlayApiReader.SwaggerUtils" should {
+
     "convert a simple play route comment" in {
       val path = "/pet.json/$id<[^/]+>/test/$nothing<[^/]+>"
       SwaggerUtils.convertPathString(path) must be_==("/pet.json/{id}/test/{nothing}")
     }
+
     "convert a play route comment with numeric matchers" in {
       val path = """/pet.json/$id<[0-9]+>/test/$nothing<[^/]+>"""
       SwaggerUtils.convertPathString(path) must be_==("/pet.json/{id}/test/{nothing}")
@@ -32,28 +38,31 @@ class PlayApiReaderSpec extends Specification with Mockito {
   }
 
   // set up mock for Play Router
-  val mockRoutes = mock[play.api.routing.Router]
-  val routesDocumentation: Seq[(String, String, String)] = Seq(
-    ("GET", "/api/dog", "test.testdata.DogController.list"),
-    ("GET", "/api/dog/:id", "test.testdata.DogController.get1(id: Long)"),
-    ("GET", "/api/dog/:dogId", "test.testdata.DogController.get2(dogId: Long)"),
-    ("PUT", "/api/dog", "test.testdata.DogController.add1"),
-    ("POST", "/api/dog", "test.testdata.DogController.update"),
 
-    ("GET", "/api/cat", "@test.testdata.CatController.list"),
-    ("GET", "/api/cat/:id", "@test.testdata.CatController.get1(id: Long)"),
-    ("PUT", "/api/cat", "@test.testdata.CatController.add1"),
-    ("POST", "/api/cat", "@test.testdata.CatController.update"),
+  val routesRules =play.modules.swagger.routes.RoutesFileParser.parse("""
+GET /api/dog test.testdata.DogController.list
+GET /api/dog/:id test.testdata.DogController.get1(id: Long)
+GET /api/dog/:dogId test.testdata.DogController.get2(dogId: Long)
+PUT /api/dog test.testdata.DogController.add1
+PUT /api/dog/:id test.testdata.DogController.add0(id:String)
+POST /api/dog test.testdata.DogController.update
+GET /api/cat @test.testdata.CatController.list
+GET /api/cat/:id @test.testdata.CatController.get1(id: Long)
+PUT /api/cat @test.testdata.CatController.add1
+POST /api/cat @test.testdata.CatController.update
+GET /api/fly test.testdata.FlyController.list
+    """) match {
+    case Right(rules) => rules.collect { case route: PlayRoute => route}
+    case Left(error) => Logger.error(error.seq.toString())
+      throw new RuntimeException("invalid route")
 
-    ("GET", "/api/fly", "test.testdata.FlyController.list")
-  )
-  mockRoutes.documentation returns routesDocumentation
+  }
 
 
   val basePath = "http://localhost/api"
   val swaggerConfig = new SwaggerConfig("1.2.3", SwaggerSpec.version, basePath, "")
 
-  val reader = new PlayApiReader(Some(mockRoutes))
+  val reader = new PlayApiReader(routesRules)
 
   val dogControllerClass: Class[_] = DogController.getClass
   val catControllerClass: Class[_] = ClassLoader.getSystemClassLoader.loadClass("test.testdata.CatController")
@@ -61,6 +70,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
   val get1Method = dogControllerClass.getMethod("get1", classOf[Long])
   val get2Method = dogControllerClass.getMethod("get2", classOf[Long])
   val get3Method = dogControllerClass.getMethod("get3", classOf[Long])
+  val add0Method = dogControllerClass.getMethod("add0", classOf[String])
 
   def dogMethod(name: String) = {
     try
@@ -78,10 +88,24 @@ class PlayApiReaderSpec extends Specification with Mockito {
     }
   }
 
+  def findRouteEntry(clazz:Class[_],method:String): RouteEntry = {
+    new RouteEntry( routesRules.find{ r =>
+      val controller = clazz.getSimpleName.replaceAll("\\$","")
+      ( r.call.controller == controller && r.call.method == method ) }
+      .getOrElse(new PlayRoute(HttpVerb(""), PathPattern(Seq.empty), HandlerCall("", "", true, "", None) )))
+  }
+
+  def findRouteEntry(clazz: Class[_], method: Method): RouteEntry = {
+    findRouteEntry(clazz,method.getName)
+  }
+
+
   def readDogMethod(name: String) = {
     val method = dogMethod(name).get
     val fullMethodName = reader.getFullMethodName(dogControllerClass, method)
-    reader.readMethod(method, fullMethodName)
+    val routeEntry = findRouteEntry(dogControllerClass,name)
+
+    reader.readMethod(method, fullMethodName,routeEntry)
   }
 
   "with Object as Controller" should {
@@ -99,7 +123,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
     }
 
     "get request path for a method that has path params" in {
-      reader.getPath(dogControllerClass, get1Method).getOrElse("") must beEqualTo("/api/dog/:id")
+      reader.getPath(dogControllerClass, get1Method).getOrElse("") must beEqualTo("/api/dog/{id}")
     }
 
   }
@@ -118,7 +142,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
     }
 
     "get request path for a method that has path params" in {
-      reader.getPath(catControllerClass, catControllerClass.getMethod("get1", classOf[Long])).getOrElse("") must beEqualTo("/api/cat/:id")
+      reader.getPath(catControllerClass, catControllerClass.getMethod("get1", classOf[Long])).getOrElse("") must beEqualTo("/api/cat/{id}")
     }
 
   }
@@ -156,6 +180,8 @@ class PlayApiReaderSpec extends Specification with Mockito {
       newOperationsMap.get("key1").get.contains(mockOperation2) must beTrue
     }
   }
+
+
 
   "readMethod with Object as controller" should {
 
@@ -206,20 +232,23 @@ class PlayApiReaderSpec extends Specification with Mockito {
 
     "adds empty 'produces' when not defined" in {
       val fullMethodName = reader.getFullMethodName(dogControllerClass, get1Method)
-      val operation: Operation = reader.readMethod(get1Method, fullMethodName).get
+      val routeEntry = findRouteEntry(dogControllerClass,get1Method)
+      val operation: Operation = reader.readMethod(get1Method, fullMethodName,routeEntry).get
       operation.produces must beEqualTo(List.empty)
     }
 
     "adds 'produces' when defined and trims" in {
       val fullMethodName = reader.getFullMethodName(dogControllerClass, get2Method)
-      val operation: Operation = reader.readMethod(get2Method, fullMethodName).get
+      val routeEntry = findRouteEntry(dogControllerClass,get2Method)
+      val operation: Operation = reader.readMethod(get2Method, fullMethodName,routeEntry).get
       operation.produces.length must beEqualTo(1)
       operation.produces.head must beEqualTo("application/json")
     }
 
     "adds multiple 'produces' when defined and trims" in {
       val fullMethodName = reader.getFullMethodName(dogControllerClass, get3Method)
-      val operation: Operation = reader.readMethod(get3Method, fullMethodName).get
+      val routeEntry = findRouteEntry(dogControllerClass,get3Method)
+      val operation: Operation = reader.readMethod(get3Method, fullMethodName,routeEntry).get
       operation.produces.length must beEqualTo(2)
       operation.produces.contains("application/json") must beTrue
       operation.produces.contains("application/xml") must beTrue
@@ -242,6 +271,17 @@ class PlayApiReaderSpec extends Specification with Mockito {
       val operation: Operation = readDogMethod("add1").get
       operation.protocols must beEqualTo(List.empty)
     }
+
+    "adds use route config" in {
+      val fullMethodName = reader.getFullMethodName(dogControllerClass, add0Method)
+      val routeEntry = findRouteEntry(dogControllerClass,add0Method)
+      val operation: Operation = reader.readMethod(add0Method, fullMethodName,routeEntry).get
+
+      operation.method must beEqualTo("PUT")
+      operation.parameters.head must beEqualTo (Parameter("id", None, None, true, false, "java.lang.String", AnyAllowableValues, "path", None))
+    }
+
+
 
     "adds 'deprecated' when defined" in {
       val operation: Operation = readDogMethod("deprecated").get
@@ -271,7 +311,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
     "results in httpMethod + fullMethodName for 'nickname' when not defined" in {
       val operation: Operation = readDogMethod("add1").get
       val fullMethodName = reader.getFullMethodName(dogControllerClass, dogMethod("add1").get)
-      operation.nickname.toLowerCase must beEqualTo(reader.genNickname(fullMethodName, Some("PUT")).toLowerCase)
+      operation.nickname.toLowerCase must beEqualTo(reader.genNickname(fullMethodName, "PUT").toLowerCase)
     }
 
     "adds 'nickname' when defined" in {
@@ -329,7 +369,8 @@ class PlayApiReaderSpec extends Specification with Mockito {
 
     "adds 'responseClass' when defined" in {
       val fullMethodName = reader.getFullMethodName(dogControllerClass, get1Method)
-      val operation: Operation = reader.readMethod(get1Method, fullMethodName).get
+      val routeEntry = findRouteEntry(dogControllerClass,get1Method)
+      val operation: Operation = reader.readMethod(get1Method, fullMethodName,routeEntry).get
       operation.responseClass must beEqualTo("test.testdata.Dog")
     }
 
@@ -344,8 +385,10 @@ class PlayApiReaderSpec extends Specification with Mockito {
     }
 
     "adds 'parameters' when defined by @ApiParam" in {
+
       val fullMethodName = reader.getFullMethodName(dogControllerClass, get1Method)
-      val operation: Operation = reader.readMethod(get1Method, fullMethodName).get
+      val routeEntry = findRouteEntry(dogControllerClass,get1Method)
+      val operation: Operation = reader.readMethod(get1Method, fullMethodName,routeEntry).get
       operation.parameters.length must beEqualTo(1)
       operation.parameters.head must beEqualTo(Parameter("dogId", Some("ID of dog to fetch"), None, true, false, "long", AnyAllowableValues, "path", None))
     }
@@ -363,7 +406,8 @@ class PlayApiReaderSpec extends Specification with Mockito {
     "create Operation for annotated method" in {
       val listMethod = catMethod("list").get
       val fullMethodName = reader.getFullMethodName(catControllerClass, listMethod)
-      val maybeOperation: Option[Operation] = reader.readMethod(listMethod, fullMethodName)
+      val routeEntry = findRouteEntry(catControllerClass,listMethod)
+      val maybeOperation: Option[Operation] = reader.readMethod(listMethod, fullMethodName,routeEntry)
       maybeOperation.nonEmpty must beTrue
     }
   }
@@ -383,10 +427,11 @@ class PlayApiReaderSpec extends Specification with Mockito {
           println("operations: %s".format(api.operations))
           println("======")
       }
-      val api1 = apiListing.apis.find(api => api.path == "/dog/:id")
+      val api1 = apiListing.apis.find{api =>
+        api.path == "/dog/{id}" }
       api1 must beSome
       api1.get.operations must not be empty
-      api1.get.operations.length must beEqualTo(1)
+      api1.get.operations.length must beEqualTo(2)
     }
 
     "create ApiListing for annotated Controller Class" in {
@@ -402,7 +447,7 @@ class PlayApiReaderSpec extends Specification with Mockito {
           println("operations: %s".format(api.operations))
           println("======")
       }
-      val api1 = apiListing.apis.find(api => api.path == "/cat/:id")
+      val api1 = apiListing.apis.find(api => api.path == "/cat/{id}")
       api1 must beSome
       api1.get.operations must not be empty
       api1.get.operations.length must beEqualTo(1)

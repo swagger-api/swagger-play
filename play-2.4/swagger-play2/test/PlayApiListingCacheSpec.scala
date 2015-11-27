@@ -7,6 +7,9 @@ import org.specs2.mutable._
 import org.specs2.mock.Mockito
 
 import com.wordnik.swagger.core.SwaggerSpec
+import play.modules.swagger.routes.{Route => PlayRoute, Parameter => PlayParameter, DynamicPart, HandlerCall, HttpVerb, PathPattern}
+
+import play.modules.swagger.routes.Route
 import scala.Some
 
 
@@ -21,6 +24,17 @@ class PlayApiListingCacheSpec extends Specification with Mockito {
     ("GET", "/api/cat", "@test.testdata.CatController.add1"),
     ("GET", "/api/fly", "test.testdata.FlyController.list")
   )
+
+
+  val routesRules =play.modules.swagger.routes.RoutesFileParser
+    .parse("""
+GET /api/dog test.testdata.DogController.list
+PUT /api/dog test.testdata.DogController.add1
+GET /api/cat @test.testdata.CatController.list
+GET /api/cat @test.testdata.CatController.add1
+GET /api/fly test.testdata.FlyController.list
+    """).right.get.collect { case route: PlayRoute => route}
+
   mockRoutes.documentation returns routesDocumentation
 
   val apiVersion = "test1"
@@ -28,7 +42,7 @@ class PlayApiListingCacheSpec extends Specification with Mockito {
   // SwaggerContext.registerClassLoader(ClassLoader.getSystemClassLoader)
   ConfigFactory.setConfig(new SwaggerConfig(apiVersion, SwaggerSpec.version, basePath, ""))
   ScannerFactory.setScanner(new PlayApiScanner(Some(mockRoutes)))
-  ClassReaders.reader = Some(new PlayApiReader(Some(mockRoutes)))
+  ClassReaders.reader = Some(new PlayApiReader(routesRules))
 
   "ApiListingCache" should {
 
