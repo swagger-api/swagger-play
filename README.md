@@ -24,8 +24,8 @@ Other Swagger-Play integrations
 -------
 This Swagger-Play integration allows you to use [Swagger annotations](https://github.com/swagger-api/swagger-core/wiki/Annotations-1.5.X) on your Play actions to generate a Swagger spec at runtime. The libraries below take different approaches to creating an integration.
 
-[iheartradio/play-swagger](https://github.com/iheartradio/play-swagger) - Write a Swagger spec in your routes file
-[zalando/play-swagger](https://github.com/zalando/play-swagger) - Generate Play code from a Swagger spec
+* [iheartradio/play-swagger](https://github.com/iheartradio/play-swagger) - Write a Swagger spec in your routes file
+* [zalando/play-swagger](https://github.com/zalando/play-swagger) - Generate Play code from a Swagger spec
 
 
 License
