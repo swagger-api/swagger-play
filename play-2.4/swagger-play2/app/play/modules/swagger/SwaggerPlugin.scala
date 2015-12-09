@@ -16,20 +16,16 @@
 
 package play.modules.swagger
 
-import java.net.URL
 import javax.inject.Inject
-
-import com.wordnik.swagger.config.{FilterFactory, ScannerFactory, ConfigFactory}
-import com.wordnik.swagger.core.SwaggerContext
-import com.wordnik.swagger.core.filter.SwaggerSpecFilter
-import com.wordnik.swagger.model.ApiInfo
-import com.wordnik.swagger.reader.ClassReaders
+import io.swagger.config.{FilterFactory, ScannerFactory, ConfigFactory}
+import play.modules.swagger.util.SwaggerContext
+import io.swagger.core.filter.SwaggerSpecFilter
 import play.api.inject.ApplicationLifecycle
 import play.api.{Logger, Application}
 import play.api.routing.Router
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
+import scala.collection.JavaConversions._
+import play.modules.swagger.routes.{Route=>PlayRoute}
 
 trait SwaggerPlugin
 
@@ -47,8 +43,11 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   val basePath = config.getString("swagger.api.basepath")
     .filter(path => !path.isEmpty)
-    .map(getPathUrl(_))
-    .getOrElse("http://localhost:9000")
+    .getOrElse("/")
+
+  val host = config.getString("swagger.api.host")
+    .filter(host => !host.isEmpty)
+    .getOrElse("localhost:9000")
 
   val title = config.getString("swagger.api.info.title") match {
     case None => ""
@@ -76,23 +75,54 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   }
 
   val licenseUrl = config.getString("swagger.api.info.licenseUrl") match {
-    case None => ""
+    // licenceUrl needs to be a valid URL to validate against schema
+    case None => "http://licenseUrl"
     case Some(value)=> value
   }
 
-  ConfigFactory.config.setApiInfo(new ApiInfo(title, description, termsOfServiceUrl, contact, license, licenseUrl));
-
   SwaggerContext.registerClassLoader(app.classloader)
-  ConfigFactory.config.setApiVersion(apiVersion)
-  ConfigFactory.config.setBasePath(basePath)
-  ScannerFactory.setScanner(new PlayApiScanner(Option(router)))
-  ClassReaders.reader = Some(new PlayApiReader(Option(router)))
 
+  var scanner = new PlayApiScanner()
+  ScannerFactory.setScanner(scanner)
+
+  var swaggerConfig = new PlaySwaggerConfig()
+
+  swaggerConfig.description = description
+  swaggerConfig.basePath = basePath
+  swaggerConfig.contact = contact
+  swaggerConfig.version = apiVersion
+  swaggerConfig.title = title
+  swaggerConfig.host = host
+  swaggerConfig.termsOfServiceUrl = termsOfServiceUrl
+  swaggerConfig.license = license
+  swaggerConfig.licenseUrl = licenseUrl
+
+  PlayConfigFactory.setConfig(swaggerConfig)
+
+  val routes ={
+    play.modules.swagger.routes.RoutesFileParser.parse(app.classloader,"routes","").right.get.collect {
+      case (prefix, route: PlayRoute) => {
+        val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+        (prefix, route)
+      }
+    }
+  }
+
+  val routesRules = Map(routes map
+    { route =>
+    {
+      val routeName = s"${route._2.call.packageName}.${route._2.call.controller}$$.${route._2.call.method}"
+      (routeName -> route._2)
+    }
+    } : _*)
+
+  val route = new RouteWrapper(routesRules)
+  RouteFactory.setRoute(route)
   app.configuration.getString("swagger.filter") match {
     case Some(e) if (e != "") => {
       try {
-        FilterFactory.filter = SwaggerContext.loadClass(e).newInstance.asInstanceOf[SwaggerSpecFilter]
-        Logger("swagger").info("Setting swagger.filter to %s".format(e))
+        FilterFactory setFilter SwaggerContext.loadClass(e).newInstance.asInstanceOf[SwaggerSpecFilter]
+        logger.debug("Setting swagger.filter to %s".format(e))
       }
       catch {
         case ex: Exception => Logger("swagger").error("Failed to load filter " + e, ex)
@@ -102,7 +132,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   }
 
   val docRoot = ""
-  ApiListingCache.listing(docRoot)
+  ApiListingCache.listing(docRoot, "127.0.0.1")
 
   logger.info("Swagger - initialization done.")
 
@@ -112,18 +142,6 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     logger.info("Swagger - stopped.")
 
     Future.successful(())
-  }
-
-  private def getPathUrl(path: String): String = {
-    try {
-      val basePathUrl = new URL(path)
-      logger.info(s"Basepath configured as:$path")
-      path
-    } catch {
-      case ex: Exception =>
-        logger.error(s"Misconfiguration - basepath not a valid URL:$path. Swagger abandoning initialisation!")
-        throw ex
-    }
   }
 
 }

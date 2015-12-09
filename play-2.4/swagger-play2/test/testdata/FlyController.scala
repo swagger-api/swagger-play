@@ -12,4 +12,3 @@ object FlyController extends Controller {
 }
 
 case class Fly(id: Long, name: String)
-
