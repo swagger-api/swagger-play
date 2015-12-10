@@ -39,7 +39,7 @@ pomExtra := {
   </licenses>
   <scm>
     <url>git@github.com:swagger-api/swagger-play.git</url>
-    <connection>scm:git:git@github.com:swagger-api/swagger-core.git</connection>
+    <connection>scm:git:git@github.com:swagger-api/swagger-play.git</connection>
   </scm>
   <developers>
     <developer>
