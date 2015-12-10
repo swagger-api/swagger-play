@@ -1,21 +1,12 @@
 package test.testdata
 
 
-import com.wordnik.swagger.annotations._
-import com.wordnik.swagger.core.util.JsonSerializer
-
-import java.io.IOException
-
+import io.swagger.annotations._
 import play.api.mvc.{Action, Controller}
-import play.Logger
-
-import play.api.libs.json.{Json, JsError}
-import javax.ws.rs.{Path, Produces, PathParam}
 import scala.concurrent.Future
 
 
 // todo - test for these
-@Path("user") // this will be the path to the doco
 @Api(value = "/apitest/dogs", description = "look after the dogs",
   basePath = "xx",
   position = 2,
@@ -30,10 +21,16 @@ import scala.concurrent.Future
   )
 )
 object DogController extends Controller {
+
+  @ApiOperation(value="addDog0")
+  def add0(id:String) = Action {
+    request => Ok("test case")
+  }
+
   @ApiOperation(value = "addDog1",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
   def add1 = Action {
     request => Ok("test case")
   }
@@ -53,7 +50,7 @@ object DogController extends Controller {
     position = 2)
   @ApiResponses(Array())
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
   def add2 = Action {
     request => Ok("test case")
   }
@@ -75,7 +72,7 @@ object DogController extends Controller {
     new ApiResponse(code = 405, message = "Invalid input"),
     new ApiResponse(code = 666, message = "Big Problem")))
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
   def add3 = Action {
     request => Ok("test case")
   }
@@ -86,7 +83,7 @@ object DogController extends Controller {
   @ApiResponses(Array(
     new ApiResponse(code = 405, message = "Invalid input")))
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to update", required = true, dataType = "Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to update", required = true, dataType = "test.testdata.Dog", paramType = "body")))
   def update = Action {
     request => Ok("test case")
   }
@@ -99,7 +96,7 @@ object DogController extends Controller {
   @ApiResponses(Array(
     new ApiResponse(code = 405, message = "Invalid input"),
     new ApiResponse(code = 404, message = "Dog not found")))
-  def get1(@ApiParam(value = "ID of dog to fetch", required = true) @PathParam("dogId") id: Long) = Action {
+  def get1(@ApiParam(value = "ID of dog to fetch", required = true) id: Long) = Action {
     request => Ok("test case")
   }
 
@@ -111,7 +108,7 @@ object DogController extends Controller {
   @ApiResponses(Array(
     new ApiResponse(code = 405, message = "Invalid input"),
     new ApiResponse(code = 404, message = "Dog not found")))
-  def get2(@ApiParam(value = "ID of dog to fetch", required = true) @PathParam("dogId") id: Long) = Action {
+  def get2(@ApiParam(value = "ID of dog to fetch", required = true) id: Long) = Action {
     request => Ok("test case")
   }
 
@@ -123,7 +120,7 @@ object DogController extends Controller {
   @ApiResponses(Array(
     new ApiResponse(code = 405, message = "Invalid input"),
     new ApiResponse(code = 404, message = "Dog not found")))
-  def get3(@ApiParam(value = "ID of dog to fetch", required = true) @PathParam("dogId") id: Long) = Action {
+  def get3(@ApiParam(value = "ID of dog to fetch", required = true) id: Long) = Action {
     request => Ok("test case")
   }
 
@@ -160,7 +157,7 @@ object DogController extends Controller {
   // Delete a Dog
   @ApiOperation(value = "Delete", notes = "Deletes a user", httpMethod = "DELETE")
   def delete(
-              @ApiParam(name = "dogId", value = "dogId") @PathParam("dogId") userId: String)
+              @ApiParam(name = "dogId", value = "dogId") userId: String)
   = Action.async {
     implicit request => Future.successful(Ok)
   }
@@ -190,5 +187,3 @@ object DogController extends Controller {
     request => Ok("test case")
   }
 }
-
-case class Dog(id: Long, name: String)

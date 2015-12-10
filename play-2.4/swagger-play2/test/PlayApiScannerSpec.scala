@@ -1,31 +1,47 @@
 import play.modules.swagger._
-
 import org.specs2.mutable._
 import org.specs2.mock.Mockito
-
-import test.testdata.DogController
-import com.wordnik.swagger.core.{SwaggerSpec, SwaggerContext}
-import com.wordnik.swagger.config.SwaggerConfig
-
-import org.mockito.Mockito._
+import scala.collection.JavaConversions._
+import play.modules.swagger.util.SwaggerContext
+import play.modules.swagger.routes.{ Route => PlayRoute }
 
 class PlayApiScannerSpec extends Specification with Mockito {
 
   // set up mock for Play Router
-  val mockRoutes = mock[play.api.routing.Router]
-  val routesDocumentation: Seq[(String, String, String)] = Seq(
-    ("GET", "/api/dog", "test.testdata.DogController.list"),
-    ("PUT", "/api/dog", "test.testdata.DogController.add"),
-    ("GET", "/api/cat", "@test.testdata.CatController.list"),
-    ("GET", "/api/cat", "@test.testdata.CatController.add"),
-    ("GET", "/api/fly", "test.testdata.FlyController.list")
-  )
-  mockRoutes.documentation returns routesDocumentation
+  val routesList = {
+    play.modules.swagger.routes.RoutesFileParser.parse("""
+GET /api/dog test.testdata.DogController.list
+PUT /api/dog test.testdata.DogController.add1
+GET /api/cat @test.testdata.CatController.list
+PUT /api/cat @test.testdata.CatController.add1
+GET /api/fly test.testdata.FlyController.list
+PUT /api/dog test.testdata.DogController.add1
+PUT /api/dog/:id test.testdata.DogController.add0(id:String)
+    """, "").right.get.collect {
+      case (prefix, route: PlayRoute) => {
+        val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+        (prefix, route)
+      }
+    }
+  }
+
+  val routesRules = Map(routesList map 
+  { route =>
+    {
+      val routeName = s"${route._2.call.packageName}.${route._2.call.controller}$$.${route._2.call.method}"
+      (routeName -> route._2)
+    }
+  } : _*)
+
+
+  val route = new RouteWrapper(routesRules)
+  RouteFactory.setRoute(route)
 
   "PlayApiScanner" should {
     "identify correct API classes based on router and API annotations" in {
-      val classes = new PlayApiScanner(Some(mockRoutes)).classes()
-      classes.length must beEqualTo(2)
+      val classes = new PlayApiScanner().classes()
+      
+      classes.toList.length must beEqualTo(2)
       classes.find(clazz => clazz == SwaggerContext.loadClass("test.testdata.DogController")).nonEmpty must beTrue
       classes.find(clazz => clazz == SwaggerContext.loadClass("test.testdata.CatController")).nonEmpty must beTrue
     }
