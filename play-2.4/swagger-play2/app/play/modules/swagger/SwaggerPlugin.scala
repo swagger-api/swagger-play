@@ -80,6 +80,14 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     case Some(value)=> value
   }
 
+  val routesFile = config.underlying.hasPath("play.http.router") match {
+    case false => "routes"
+    case true => config.getString("play.http.router") match {
+      case None => "routes"
+      case Some(value)=> value.replace(".Routes", ".routes")
+    }
+  }
+
   SwaggerContext.registerClassLoader(app.classloader)
 
   var scanner = new PlayApiScanner()
@@ -99,8 +107,8 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   PlayConfigFactory.setConfig(swaggerConfig)
 
-  val routes ={
-    play.modules.swagger.routes.RoutesFileParser.parse(app.classloader,"routes","").right.get.collect {
+  val routes = {
+    play.modules.swagger.routes.RoutesFileParser.parse(app.classloader, routesFile, "").right.get.collect {
       case (prefix, route: PlayRoute) => {
         val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
         (prefix, route)

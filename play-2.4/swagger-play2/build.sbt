@@ -11,9 +11,9 @@ libraryDependencies ++= Seq(
   "io.swagger"         % "swagger-core"               % "1.5.4",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.0",
   "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
-  "org.specs2"        %% "specs2-core"                % "3.6"              % "test",
-  "org.specs2"        %% "specs2-mock"                % "3.6"              % "test",
-  "org.specs2"        %% "specs2-junit"               % "3.6"              % "test",
+  "org.specs2"        %% "specs2-core"                % "3.6.6"            % "test",
+  "org.specs2"        %% "specs2-mock"                % "3.6.6"            % "test",
+  "org.specs2"        %% "specs2-junit"               % "3.6.6"            % "test",
   "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
 
 publishTo <<= version { (v: String) =>
