@@ -44,7 +44,13 @@ sbt publishLocal
 
 There are just a couple steps to integrate your Play2 app with swagger.
 
-1.  Add the resource listing to your routes file (you can read more about the resource listing [here](https://github.com/swagger-api/swagger-core/wiki/Resource-Listing)
+1\. Add the Swagger module to your `application.conf`
+ 
+```
+play.modules.enabled += "play.modules.swagger.SwaggerModule"
+```
+ 
+2\. Add the resource listing to your routes file (you can read more about the resource listing [here](https://github.com/swagger-api/swagger-core/wiki/Resource-Listing))
 
 ```
 
@@ -52,7 +58,7 @@ GET     /api-docs               controllers.ApiHelpController.getResources
 
 ```
 
-2.  Annotate your REST endpoints with Swagger annotations.  This allows the Swagger framework to create the [api-declaration](https://github.com/swagger-api/swagger-core/wiki/API-Declaration) automatically!
+3\. Annotate your REST endpoints with Swagger annotations. This allows the Swagger framework to create the [api-declaration](https://github.com/swagger-api/swagger-core/wiki/API-Declaration) automatically!
 
 In your controller for, say your "pet" resource:
 
@@ -86,8 +92,6 @@ What this does is the following:
 In the routes file, you then wire this api as follows:
 
 ```
-GET     /api-docs/pet            controllers.ApiHelpController.getResource(path = "/pet")
-
 GET     /pet/:id                 controllers.PetApiController.getPetById(id)
 ```
 
