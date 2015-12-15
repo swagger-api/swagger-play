@@ -17,9 +17,9 @@ import io.swagger.util.ParameterProcessor;
 import io.swagger.util.PrimitiveType;
 import io.swagger.util.ReflectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import play.Application;
 import play.Logger;
-import play.modules.swagger.routes.*;
+import play.modules.swagger.util.CrossUtil;
+import play.routes.compiler.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -555,19 +555,15 @@ public class PlayReader {
         if (!route.call().parameters().isDefined()) {
             return parameters;
         }
-        scala.collection.Iterator<play.modules.swagger.routes.Parameter> iter  = route.call().parameters().get().iterator();
+        scala.collection.Iterator<play.routes.compiler.Parameter> iter  = route.call().parameters().get().iterator();
 
         while (iter.hasNext()) {
-            play.modules.swagger.routes.Parameter p = iter.next();
+            play.routes.compiler.Parameter p = iter.next();
             if (!p.fixed().isEmpty()) continue;
             Parameter parameter;
-            String def = null;
-
-            if (p.defaultValue().isDefined()) {
-                def = p.defaultValue().get();
-                if (def.startsWith("\"") && def.endsWith("\"")){
-                    def = def.substring(1,def.length()-1);
-                }
+            String def = CrossUtil.getParameterDefaultField(p);
+            if (def.startsWith("\"") && def.endsWith("\"")){
+                def = def.substring(1,def.length()-1);
             }
             Type type = getParamType(cls, method, p.typeName());
             Property schema = createProperty(type);

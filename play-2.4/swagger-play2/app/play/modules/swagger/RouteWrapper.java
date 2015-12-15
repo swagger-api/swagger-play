@@ -1,6 +1,6 @@
 package play.modules.swagger;
 
-import play.modules.swagger.routes.Route;
+import play.routes.compiler.Route;
 
 import java.util.Map;
 
