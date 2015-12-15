@@ -16,8 +16,9 @@
 
 package play.modules.swagger
 
+import java.io.File
 import javax.inject.Inject
-import io.swagger.config.{FilterFactory, ScannerFactory, ConfigFactory}
+import io.swagger.config.{FilterFactory, ScannerFactory}
 import play.modules.swagger.util.SwaggerContext
 import io.swagger.core.filter.SwaggerSpecFilter
 import play.api.inject.ApplicationLifecycle
@@ -25,7 +26,7 @@ import play.api.{Logger, Application}
 import play.api.routing.Router
 import scala.concurrent.Future
 import scala.collection.JavaConversions._
-import play.modules.swagger.routes.{Route=>PlayRoute}
+import play.routes.compiler.{Route=>PlayRoute}
 
 trait SwaggerPlugin
 
@@ -81,10 +82,10 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   }
 
   val routesFile = config.underlying.hasPath("play.http.router") match {
-    case false => "routes"
+    case false => "conf/routes"
     case true => config.getString("play.http.router") match {
-      case None => "routes"
-      case Some(value)=> value.replace(".Routes", ".routes")
+      case None => "conf/routes"
+      case Some(value)=> "conf/" + value.replace(".Routes", ".routes")
     }
   }
 
@@ -107,11 +108,11 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   PlayConfigFactory.setConfig(swaggerConfig)
 
-  val routes = {
-    play.modules.swagger.routes.RoutesFileParser.parse(app.classloader, routesFile, "").right.get.collect {
-      case (prefix, route: PlayRoute) => {
+  val routes ={
+    play.routes.compiler.RoutesFileParser.parse(new File(routesFile)).right.get.collect {
+      case (route: PlayRoute) => {
         val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-        (prefix, route)
+        route
       }
     }
   }
@@ -119,8 +120,8 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   val routesRules = Map(routes map
     { route =>
     {
-      val routeName = s"${route._2.call.packageName}.${route._2.call.controller}$$.${route._2.call.method}"
-      (routeName -> route._2)
+      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+      (routeName -> route)
     }
     } : _*)
 
