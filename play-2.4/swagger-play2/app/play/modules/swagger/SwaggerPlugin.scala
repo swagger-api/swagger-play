@@ -26,7 +26,7 @@ import play.api.{Logger, Application}
 import play.api.routing.Router
 import scala.concurrent.Future
 import scala.collection.JavaConversions._
-import play.routes.compiler.{Route=>PlayRoute}
+import play.routes.compiler.{Route => PlayRoute, Include => PlayInclude, RoutesFileParser, StaticPart}
 
 trait SwaggerPlugin
 
@@ -81,14 +81,6 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     case Some(value)=> value
   }
 
-  val routesFile = config.underlying.hasPath("play.http.router") match {
-    case false => "conf/routes"
-    case true => config.getString("play.http.router") match {
-      case None => "conf/routes"
-      case Some(value)=> "conf/" + value.replace(".Routes", ".routes")
-    }
-  }
-
   SwaggerContext.registerClassLoader(app.classloader)
 
   var scanner = new PlayApiScanner()
@@ -108,13 +100,37 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   PlayConfigFactory.setConfig(swaggerConfig)
 
-  val routes ={
-    play.routes.compiler.RoutesFileParser.parse(new File(routesFile)).right.get.collect {
-      case (route: PlayRoute) => {
-        val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-        route
+
+  val routes = parseRoutes
+
+  def parseRoutes: List[PlayRoute] = {
+    def playRoutesClassNameToFileName(className: String) = className.replace(".Routes", ".routes")
+
+    val routesFile = config.underlying.hasPath("play.http.router") match {
+      case false => "routes"
+      case true => config.getString("play.http.router") match {
+        case None => "routes"
+        case Some(value)=> playRoutesClassNameToFileName(value)
       }
     }
+    //Parses multiple route files recursively
+    def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
+      logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
+      val parsedRoutes = RoutesFileParser.parse(new File(app.classloader.getResource(routesFile).toURI))
+      val routes = parsedRoutes.right.get.collect {
+        case (route: PlayRoute) => {
+          logger.debug(s"Adding route '$route'")
+          Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix + "/") +: route.path.parts)))
+        }
+        case (include: PlayInclude) => {
+          logger.debug(s"Processing route include $include")
+          parseRoutesHelper(playRoutesClassNameToFileName(include.router), include.prefix)
+        }
+      }.flatten
+      logger.debug(s"Finished processing route file '$routesFile'")
+      routes
+    }
+    parseRoutesHelper(routesFile, "")
   }
 
   val routesRules = Map(routes map
