@@ -526,22 +526,43 @@ public class PlayReader {
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         for (int i = 0; i < genericParameterTypes.length; i++) {
             final Type type = TypeFactory.defaultInstance().constructType(genericParameterTypes[i], cls);
-            String paramClassName = ((JavaType)type).getRawClass().getSimpleName();
-            if (simpleTypeName.equalsIgnoreCase(paramClassName)) {
+            final Class<?> paramClass = ((JavaType)type).getRawClass();
+            if (simpleTypeName.equalsIgnoreCase(paramClass.getSimpleName())) {
+                return type;
+            }
+            if (simpleTypeName.equalsIgnoreCase(paramClass.getName())) {
                 return type;
             }
         }
         return null;
     }
 
-    private List<Annotation> getParamAnnotations(Class<?> cls, Method method, String simpleTypeName) {
+    private List<Annotation> getParamAnnotations(Class<?> cls, Type[] genericParameterTypes, Annotation[][] paramAnnotations, String simpleTypeName, int fieldPosition) {
+        Type type = TypeFactory.defaultInstance().constructType(genericParameterTypes[fieldPosition], cls);
+        Class<?> paramClass = ((JavaType)type).getRawClass();
+        if (simpleTypeName.equalsIgnoreCase(paramClass.getSimpleName())) {
+            return Arrays.asList(paramAnnotations[fieldPosition]);
+        }
+        if (simpleTypeName.equalsIgnoreCase(paramClass.getName())) {
+            return Arrays.asList(paramAnnotations[fieldPosition]);
+        }
+        return null;
+    }
+
+    private List<Annotation> getParamAnnotations(Class<?> cls, Method method, String simpleTypeName, int fieldPosition) {
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
+
+        List<Annotation> annotations = getParamAnnotations(cls, genericParameterTypes, paramAnnotations, simpleTypeName, fieldPosition);
+        if (annotations != null) {
+            return annotations;
+        }
+
+        // Fallback to type
         for (int i = 0; i < genericParameterTypes.length; i++) {
-            final Type type = TypeFactory.defaultInstance().constructType(genericParameterTypes[i], cls);
-            String paramClassName = ((JavaType)type).getRawClass().getSimpleName();
-            if (simpleTypeName.equalsIgnoreCase(paramClassName)) {
-                return Arrays.asList(paramAnnotations[i]);
+            annotations = getParamAnnotations(cls, genericParameterTypes, paramAnnotations, simpleTypeName, i);
+            if (annotations != null) {
+                return annotations;
             }
         }
         return null;
@@ -557,6 +578,7 @@ public class PlayReader {
         }
         scala.collection.Iterator<play.routes.compiler.Parameter> iter  = route.call().parameters().get().iterator();
 
+        int fieldPosition = 0;
         while (iter.hasNext()) {
             play.routes.compiler.Parameter p = iter.next();
             if (!p.fixed().isEmpty()) continue;
@@ -579,7 +601,7 @@ public class PlayReader {
                 if (schema != null) ((QueryParameter)parameter).setProperty(schema);
             }
             parameter.setName(p.name());
-            List<Annotation> annotations = getParamAnnotations(cls, method, p.typeName());
+            List<Annotation> annotations = getParamAnnotations(cls, method, p.typeName(), fieldPosition++);
 
             ParameterProcessor.applyAnnotations(getSwagger(), parameter, type, annotations);
 
