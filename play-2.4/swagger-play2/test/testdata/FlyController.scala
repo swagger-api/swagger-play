@@ -1,4 +1,4 @@
-package test.testdata
+package testdata
 
 import play.api.mvc.{Action, Controller}
 

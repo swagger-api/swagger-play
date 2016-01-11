@@ -1,6 +1,6 @@
 import java.io.File
 
-import io.swagger.config.{ ScannerFactory }
+import io.swagger.config.ScannerFactory
 import io.swagger.models.{ModelImpl, HttpMethod}
 import io.swagger.models.parameters.{BodyParameter, PathParameter}
 import io.swagger.models.properties.{RefProperty, ArrayProperty}
@@ -18,13 +18,13 @@ class PlayApiListingCacheSpec extends Specification with Mockito {
   // set up mock for Play Router
   val routesList = {
     play.routes.compiler.RoutesFileParser.parseContent("""
-GET /api/dog test.testdata.DogController.list
-PUT /api/dog test.testdata.DogController.add1
-GET /api/cat @test.testdata.CatController.list
-PUT /api/cat @test.testdata.CatController.add1
-GET /api/fly test.testdata.FlyController.list
-PUT /api/dog test.testdata.DogController.add1
-PUT /api/dog/:id test.testdata.DogController.add0(id:String)
+GET /api/dog testdata.DogController.list
+PUT /api/dog testdata.DogController.add1
+GET /api/cat @testdata.CatController.list
+PUT /api/cat @testdata.CatController.add1
+GET /api/fly testdata.FlyController.list
+PUT /api/dog testdata.DogController.add1
+PUT /api/dog/:id testdata.DogController.add0(id:String)
     """, new File("")).right.get.collect {
       case (route: PlayRoute) => {
         val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
@@ -39,7 +39,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
   { route =>
     {
       val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-      (routeName -> route)
+      routeName -> route
     }
   } : _*)
 
@@ -85,7 +85,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
       swagger.get.getInfo.getTermsOfService must beEqualTo(swaggerConfig.getTermsOfServiceUrl)
       swagger.get.getInfo.getLicense.getName must beEqualTo(swaggerConfig.getLicense)
 
-      val pathCat = swagger.get.getPaths().get("/cat")
+      val pathCat = swagger.get.getPaths.get("/cat")
       pathCat.getOperations.size must beEqualTo(2)
 
       val opCatGet = pathCat.getOperationMap.get(HttpMethod.GET)
@@ -104,7 +104,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
       opCatPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
       opCatPut.getProduces must beNull
 
-      val pathDog = swagger.get.getPaths().get("/dog")
+      val pathDog = swagger.get.getPaths.get("/dog")
       pathDog.getOperations.size must beEqualTo(2)
 
       val opDogGet = pathDog.getOperationMap.get(HttpMethod.GET)
@@ -123,7 +123,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
       opDogPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
       opDogPut.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
 
-      val pathDogParam = swagger.get.getPaths().get("/dog/{id}")
+      val pathDogParam = swagger.get.getPaths.get("/dog/{id}")
       pathDogParam.getOperations.size must beEqualTo(1)
 
       val opDogParamPut = pathDogParam.getOperationMap.get(HttpMethod.PUT)
@@ -147,6 +147,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
       dogDef.getProperties.containsKey("name") must beTrue
     }
   }
+
   def toJsonString(data: Any): String = {
     if (data.getClass.equals(classOf[String])) {
       data.asInstanceOf[String]

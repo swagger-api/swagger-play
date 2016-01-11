@@ -1,4 +1,4 @@
-package test.testdata
+package testdata
 
 class Dog{
   var id: Long = _

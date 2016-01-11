@@ -11,7 +11,7 @@ class EBeanModelTest extends Specification with Mockito {
       val models = ModelConverters.getInstance().readAll(classOf[Person])
       models.size must beEqualTo(1)
 
-      val model = models.entrySet().iterator().next().getValue;
+      val model = models.entrySet().iterator().next().getValue
       val property = model.getProperties.keySet().iterator().next()
 
       property must beEqualTo("name")

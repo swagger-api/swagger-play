@@ -601,11 +601,12 @@ public class PlayReader {
                 if (schema != null) ((QueryParameter)parameter).setProperty(schema);
             }
             parameter.setName(p.name());
-            List<Annotation> annotations = getParamAnnotations(cls, method, p.typeName(), fieldPosition++);
+            List<Annotation> annotations = getParamAnnotations(cls, method, p.typeName(), fieldPosition);
 
             ParameterProcessor.applyAnnotations(getSwagger(), parameter, type, annotations);
 
             parameters.add(parameter);
+            fieldPosition++;
         }
         return parameters;
     }
