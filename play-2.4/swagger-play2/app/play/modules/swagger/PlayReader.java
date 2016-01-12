@@ -448,7 +448,7 @@ public class PlayReader {
                     }
                 }
                 if (securities.size() > 0) {
-                    securities.forEach(sec -> operation.security(sec));
+                    securities.forEach(operation::security);
                 }
             }
             if (apiOperation.consumes() != null && !apiOperation.consumes().isEmpty()) {
@@ -513,7 +513,7 @@ public class PlayReader {
 
         List<Parameter> parameters = getParameters(cls, method, route);
 
-        parameters.forEach(parameter -> operation.parameter(parameter));
+        parameters.forEach(operation::parameter);
 
         if (operation.getResponses() == null) {
             Response response = new Response().description(SUCCESSFUL_OPERATION);
@@ -524,9 +524,9 @@ public class PlayReader {
 
     private Type getParamType(Class<?> cls, Method method, String simpleTypeName) {
         Type[] genericParameterTypes = method.getGenericParameterTypes();
-        for (int i = 0; i < genericParameterTypes.length; i++) {
-            final Type type = TypeFactory.defaultInstance().constructType(genericParameterTypes[i], cls);
-            final Class<?> paramClass = ((JavaType)type).getRawClass();
+        for (Type genericParameterType : genericParameterTypes) {
+            final Type type = TypeFactory.defaultInstance().constructType(genericParameterType, cls);
+            final Class<?> paramClass = ((JavaType) type).getRawClass();
             if (simpleTypeName.equalsIgnoreCase(paramClass.getSimpleName())) {
                 return type;
             }
@@ -592,12 +592,12 @@ public class PlayReader {
             if (route.path().has(p.name())) {
                 // it's a path param
                 parameter = new PathParameter();
-                if (def != null) ((PathParameter)parameter).setDefaultValue(def);
+                ((PathParameter)parameter).setDefaultValue(def);
                 if (schema != null) ((PathParameter)parameter).setProperty(schema);
             } else {
                 // it's a query string param
                 parameter = new QueryParameter();
-                if (def != null) ((QueryParameter)parameter).setDefaultValue(def);
+                ((QueryParameter)parameter).setDefaultValue(def);
                 if (schema != null) ((QueryParameter)parameter).setProperty(schema);
             }
             parameter.setName(p.name());
@@ -719,7 +719,7 @@ public class PlayReader {
 
     public String getFullMethodName(Class clazz, Method method) {
 
-        if (clazz.getCanonicalName().indexOf("$") == -1) {
+        if (!clazz.getCanonicalName().contains("$")) {
             return clazz.getCanonicalName() + "$." + method.getName();
         } else {
             return clazz.getCanonicalName() + "." + method.getName();

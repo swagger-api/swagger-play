@@ -18,6 +18,8 @@ class PlayApiListingCacheSpec extends Specification with Mockito {
   // set up mock for Play Router
   val routesList = {
     play.routes.compiler.RoutesFileParser.parseContent("""
+POST /api/document/:settlementId/files/:fileId/accept testdata.DocumentController.accept(settlementId:String,fileId:String)
+GET /api/search testdata.SettlementsSearcherController.search(personalNumber:String,propertyId:String)
 GET /api/dog testdata.DogController.list
 PUT /api/dog testdata.DogController.add1
 GET /api/cat @testdata.CatController.list
@@ -26,14 +28,11 @@ GET /api/fly testdata.FlyController.list
 PUT /api/dog testdata.DogController.add1
 PUT /api/dog/:id testdata.DogController.add0(id:String)
     """, new File("")).right.get.collect {
-      case (route: PlayRoute) => {
+      case (route: PlayRoute) =>
         val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
         route
-      }
     }
   }
-
-
 
   val routesRules = Map(routesList map 
   { route =>
@@ -76,14 +75,32 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       swagger must beSome
       swagger.get.getSwagger must beEqualTo("2.0")
       swagger.get.getBasePath must beEqualTo(basePath)
-      swagger.get.getPaths.size must beEqualTo(3)
-      swagger.get.getDefinitions.size must beEqualTo(3)
+      swagger.get.getPaths.size must beEqualTo(5)
+      swagger.get.getDefinitions.size must beEqualTo(5)
       swagger.get.getHost must beEqualTo(swaggerConfig.getHost)
       swagger.get.getInfo.getContact.getName must beEqualTo(swaggerConfig.getContact)
       swagger.get.getInfo.getVersion must beEqualTo(swaggerConfig.getVersion)
       swagger.get.getInfo.getTitle must beEqualTo(swaggerConfig.getTitle)
       swagger.get.getInfo.getTermsOfService must beEqualTo(swaggerConfig.getTermsOfServiceUrl)
       swagger.get.getInfo.getLicense.getName must beEqualTo(swaggerConfig.getLicense)
+
+      val pathDoc = swagger.get.getPaths.get("/document/{settlementId}/files/{fileId}/accept")
+      pathDoc.getOperations.size must beEqualTo(1)
+
+      val opDocPost = pathDoc.getOperationMap.get(HttpMethod.POST)
+      opDocPost.getOperationId must beEqualTo("acceptsettlementfile")
+      opDocPost.getParameters.size() must beEqualTo(3)
+      opDocPost.getParameters.get(0).getDescription must beEqualTo("Id of the settlement to accept a file on.")
+      opDocPost.getParameters.get(1).getDescription must beEqualTo("File id of the file to accept.")
+
+      val pathSearch = swagger.get.getPaths.get("/search")
+      pathDoc.getOperations.size must beEqualTo(1)
+
+      val opSearchGet = pathSearch.getOperationMap.get(HttpMethod.GET)
+      opSearchGet.getParameters.size() must beEqualTo(3)
+      opSearchGet.getDescription must beEqualTo("Search for a settlement with personal number and property id.")
+      opSearchGet.getParameters.get(0).getDescription must beEqualTo("A personal number of one of the sellers.")
+      opSearchGet.getParameters.get(1).getDescription must beEqualTo("The cadastre or share id.")
 
       val pathCat = swagger.get.getPaths.get("/cat")
       pathCat.getOperations.size must beEqualTo(2)
@@ -134,7 +151,6 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       opDogParamPut.getConsumes.asScala.toList must beEqualTo(List("application/json","application/xml"))
       opDogParamPut.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
       opDogParamPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
-
 
       val catDef = swagger.get.getDefinitions.get("Cat").asInstanceOf[ModelImpl]
       catDef.getType must beEqualTo("object")
