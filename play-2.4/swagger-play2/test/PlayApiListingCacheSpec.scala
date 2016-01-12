@@ -20,6 +20,7 @@ class PlayApiListingCacheSpec extends Specification with Mockito {
     play.routes.compiler.RoutesFileParser.parseContent("""
 POST /api/document/:settlementId/files/:fileId/accept testdata.DocumentController.accept(settlementId:String,fileId:String)
 GET /api/search testdata.SettlementsSearcherController.search(personalNumber:String,propertyId:String)
+GET /api/pointsofinterest testdata.PointOfInterestController.list(eastingMin:Double,northingMin:Double,eastingMax:Double,northingMax:Double)
 GET /api/dog testdata.DogController.list
 PUT /api/dog testdata.DogController.add1
 GET /api/cat @testdata.CatController.list
@@ -75,7 +76,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       swagger must beSome
       swagger.get.getSwagger must beEqualTo("2.0")
       swagger.get.getBasePath must beEqualTo(basePath)
-      swagger.get.getPaths.size must beEqualTo(5)
+      swagger.get.getPaths.size must beEqualTo(6)
       swagger.get.getDefinitions.size must beEqualTo(5)
       swagger.get.getHost must beEqualTo(swaggerConfig.getHost)
       swagger.get.getInfo.getContact.getName must beEqualTo(swaggerConfig.getContact)
@@ -94,13 +95,24 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       opDocPost.getParameters.get(1).getDescription must beEqualTo("File id of the file to accept.")
 
       val pathSearch = swagger.get.getPaths.get("/search")
-      pathDoc.getOperations.size must beEqualTo(1)
+      pathSearch.getOperations.size must beEqualTo(1)
 
       val opSearchGet = pathSearch.getOperationMap.get(HttpMethod.GET)
       opSearchGet.getParameters.size() must beEqualTo(3)
       opSearchGet.getDescription must beEqualTo("Search for a settlement with personal number and property id.")
       opSearchGet.getParameters.get(0).getDescription must beEqualTo("A personal number of one of the sellers.")
       opSearchGet.getParameters.get(1).getDescription must beEqualTo("The cadastre or share id.")
+
+      val pathPOI = swagger.get.getPaths.get("/pointsofinterest")
+      pathPOI.getOperations.size must beEqualTo(1)
+
+      val opPOIGet = pathPOI.getOperationMap.get(HttpMethod.GET)
+      opPOIGet.getParameters.size() must beEqualTo(5)
+      opPOIGet.getDescription must beEqualTo("Returns points of interest")
+      opPOIGet.getParameters.get(0).getDescription must beEqualTo("Minimum easting for provided extent")
+      opPOIGet.getParameters.get(1).getDescription must beEqualTo("Minimum northing for provided extent")
+      opPOIGet.getParameters.get(2).getDescription must beEqualTo("Maximum easting for provided extent")
+      opPOIGet.getParameters.get(3).getDescription must beEqualTo("Maximum northing for provided extent")
 
       val pathCat = swagger.get.getPaths.get("/cat")
       pathCat.getOperations.size must beEqualTo(2)
