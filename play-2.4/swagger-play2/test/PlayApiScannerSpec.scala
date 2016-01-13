@@ -12,13 +12,13 @@ class PlayApiScannerSpec extends Specification with Mockito {
   // set up mock for Play Router
   val routesList = {
     play.routes.compiler.RoutesFileParser.parseContent("""
-GET /api/dog test.testdata.DogController.list
-PUT /api/dog test.testdata.DogController.add1
-GET /api/cat @test.testdata.CatController.list
-PUT /api/cat @test.testdata.CatController.add1
-GET /api/fly test.testdata.FlyController.list
-PUT /api/dog test.testdata.DogController.add1
-PUT /api/dog/:id test.testdata.DogController.add0(id:String)
+GET /api/dog testdata.DogController.list
+PUT /api/dog testdata.DogController.add1
+GET /api/cat @testdata.CatController.list
+PUT /api/cat @testdata.CatController.add1
+GET /api/fly testdata.FlyController.list
+PUT /api/dog testdata.DogController.add1
+PUT /api/dog/:id testdata.DogController.add0(id:String)
                                                        """, new File("")).right.get.collect {
       case (route: PlayRoute) => {
         val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
@@ -31,7 +31,7 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
   { route =>
     {
       val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-      (routeName -> route)
+      routeName -> route
     }
   } : _*)
 
@@ -44,8 +44,8 @@ PUT /api/dog/:id test.testdata.DogController.add0(id:String)
       val classes = new PlayApiScanner().classes()
       
       classes.toList.length must beEqualTo(2)
-      classes.find(clazz => clazz == SwaggerContext.loadClass("test.testdata.DogController")).nonEmpty must beTrue
-      classes.find(clazz => clazz == SwaggerContext.loadClass("test.testdata.CatController")).nonEmpty must beTrue
+      classes.contains(SwaggerContext.loadClass("testdata.DogController")) must beTrue
+      classes.contains(SwaggerContext.loadClass("testdata.CatController")) must beTrue
     }
   }
 

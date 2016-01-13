@@ -1,4 +1,4 @@
-package test.testdata
+package testdata
 
 import io.swagger.annotations._
 
@@ -13,7 +13,7 @@ class CatController extends Controller {
       consumes = "",
       protocols = "")
     @ApiImplicitParams(Array(
-      new ApiImplicitParam(name = "cat", value = "Cat object to add", required = true, dataType = "test.testdata.Cat", paramType = "body")))
+      new ApiImplicitParam(name = "cat", value = "Cat object to add", required = true, dataType = "testdata.Cat", paramType = "body")))
     def add1 = Action {
       request => Ok("test case")
     }
@@ -24,7 +24,7 @@ class CatController extends Controller {
     @ApiResponses(Array(
       new ApiResponse(code = 405, message = "Invalid input")))
     @ApiImplicitParams(Array(
-      new ApiImplicitParam(name = "cat", value = "Cat object to update", required = true, dataType = "test.testdata.Cat", paramType = "body")))
+      new ApiImplicitParam(name = "cat", value = "Cat object to update", required = true, dataType = "testdata.Cat", paramType = "body")))
     def update = Action {
       request => Ok("test case")
     }

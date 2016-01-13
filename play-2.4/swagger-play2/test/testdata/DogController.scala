@@ -1,10 +1,8 @@
-package test.testdata
-
+package testdata
 
 import io.swagger.annotations._
 import play.api.mvc.{Action, Controller}
 import scala.concurrent.Future
-
 
 // todo - test for these
 @Api(value = "/apitest/dogs", description = "look after the dogs",
@@ -30,7 +28,7 @@ object DogController extends Controller {
   @ApiOperation(value = "addDog1",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "testdata.Dog", paramType = "body")))
   def add1 = Action {
     request => Ok("test case")
   }
@@ -50,7 +48,7 @@ object DogController extends Controller {
     position = 2)
   @ApiResponses(Array())
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "testdata.Dog", paramType = "body")))
   def add2 = Action {
     request => Ok("test case")
   }
@@ -72,7 +70,7 @@ object DogController extends Controller {
     new ApiResponse(code = 405, message = "Invalid input"),
     new ApiResponse(code = 666, message = "Big Problem")))
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "test.testdata.Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataType = "testdata.Dog", paramType = "body")))
   def add3 = Action {
     request => Ok("test case")
   }
@@ -83,7 +81,7 @@ object DogController extends Controller {
   @ApiResponses(Array(
     new ApiResponse(code = 405, message = "Invalid input")))
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "dog", value = "Dog object to update", required = true, dataType = "test.testdata.Dog", paramType = "body")))
+    new ApiImplicitParam(name = "dog", value = "Dog object to update", required = true, dataType = "testdata.Dog", paramType = "body")))
   def update = Action {
     request => Ok("test case")
   }
@@ -131,7 +129,6 @@ object DogController extends Controller {
   @Path("/{petId}")
   */
 
-
   @ApiOperation(value = "List Dogs",
     nickname = "listDogs",
     notes = "Returns all dogs",
@@ -142,7 +139,6 @@ object DogController extends Controller {
   def list = Action {
     request => Ok("test case")
   }
-
 
   @ApiOperation(value = "Method with numeric chars in name",
     notes = "get a Dog with id 33",
