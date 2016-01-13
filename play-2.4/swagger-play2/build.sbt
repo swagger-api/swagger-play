@@ -1,5 +1,5 @@
 name := "swagger-play2"
-version := "1.5.0"
+version := "1.5.1"
 
 checksums in update := Nil
 
@@ -8,7 +8,7 @@ crossScalaVersions := Seq("2.11.6", "2.11.7")
 
 libraryDependencies ++= Seq(
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
-  "io.swagger"         % "swagger-core"               % "1.5.4",
+  "io.swagger"         % "swagger-core"               % "1.5.6",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.0",
   "com.typesafe.play" %% "routes-compiler"            % "2.4.6",
   "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
