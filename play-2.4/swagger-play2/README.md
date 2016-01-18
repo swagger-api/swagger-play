@@ -101,9 +101,9 @@ Please note that the minimum configuration needed to have a route/controller be 
 
 #### The ApiParam annotation
 
-Swagger for play has two types of `ApiParam`s--they are `ApiParam` and `ApiParamImplicit`.  The distinction is that some
+Swagger for play has two types of `ApiParam`s--they are `ApiParam` and `ApiImplicitParam`.  The distinction is that some
 paramaters (variables) are passed to the method implicitly by the framework.  ALL body parameters need to be described
-with `ApiParamImplicit` annotations.  If they are `queryParam`s or `pathParam`s, you can use `ApiParam` annotations.
+with `ApiImplicitParam` annotations.  If they are `queryParam`s or `pathParam`s, you can use `ApiParam` annotations.
 
 
 # application.conf - config options
