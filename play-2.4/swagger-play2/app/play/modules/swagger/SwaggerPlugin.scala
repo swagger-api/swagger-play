@@ -17,16 +17,20 @@
 package play.modules.swagger
 
 import java.io.File
+import java.nio.charset.Charset
 import javax.inject.Inject
+
+import com.google.common.io.{Files, Resources}
 import io.swagger.config.{FilterFactory, ScannerFactory}
-import play.modules.swagger.util.SwaggerContext
 import io.swagger.core.filter.SwaggerSpecFilter
 import play.api.inject.ApplicationLifecycle
-import play.api.{Logger, Application}
 import play.api.routing.Router
-import scala.concurrent.Future
+import play.api.{Application, Logger}
+import play.modules.swagger.util.SwaggerContext
+import play.routes.compiler.{Include => PlayInclude, Route => PlayRoute, RoutesFileParser, StaticPart}
+
 import scala.collection.JavaConversions._
-import play.routes.compiler.{Route => PlayRoute, Include => PlayInclude, RoutesFileParser, StaticPart}
+import scala.concurrent.Future
 
 trait SwaggerPlugin
 
@@ -110,14 +114,15 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       case false => "routes"
       case true => config.getString("play.http.router") match {
         case None => "routes"
-        case Some(value)=> playRoutesClassNameToFileName(value)
+        case Some(value) => playRoutesClassNameToFileName(value)
       }
     }
+
     //Parses multiple route files recursively
-    def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
-      logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
-      val parsedRoutes = RoutesFileParser.parse(new File(app.classloader.getResource(routesFile).toURI))
-      val routes = parsedRoutes.right.get.collect {
+    def parseRoutesHelper(routesPath: String, prefix: String): List[PlayRoute] = {
+      logger.debug(s"Processing route file '$routesPath' with prefix '$prefix'")
+
+      val routes = RoutesFileParser.parse(readRoutesFile(routesPath)).right.get.collect {
         case (route: PlayRoute) => {
           logger.debug(s"Adding route '$route'")
           Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix + "/") +: route.path.parts)))
@@ -127,18 +132,38 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
           parseRoutesHelper(playRoutesClassNameToFileName(include.router), include.prefix)
         }
       }.flatten
-      logger.debug(s"Finished processing route file '$routesFile'")
+      logger.debug(s"Finished processing route file '$routesPath'")
       routes
     }
     parseRoutesHelper(routesFile, "")
   }
 
-  val routesRules = Map(routes map
-    { route =>
-    {
-      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-      (routeName -> route)
+  def readRoutesFile(routesPath: String): File = {
+    try {
+      new File(app.classloader.getResource(routesPath).toURI)
+    } catch {
+      //URI is not hierarchical may happen when a routes file is in classpath
+      case e: IllegalArgumentException => classPathReadFile(routesPath)
     }
+  }
+
+  //this is a fallback, which fixes
+  //https://github.com/swagger-api/swagger-play/issues/55
+  def classPathReadFile(routesPath: String): File = {
+    val tempRoutesFile = File.createTempFile(s"play-routes-${System.currentTimeMillis()}", null)
+    tempRoutesFile.deleteOnExit()
+
+    val routesContent: String = Resources.toString(app.resource(routesPath).get, Charset.forName("UTF-8"))
+    Resources.asByteSource(app.resource(routesPath).get).copyTo(Files.asByteSink(tempRoutesFile))
+
+    tempRoutesFile
+  }
+
+  val routesRules = Map(routes map
+    { route => {
+        val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+        (routeName -> route)
+      }
     } : _*)
 
   val route = new RouteWrapper(routesRules)
