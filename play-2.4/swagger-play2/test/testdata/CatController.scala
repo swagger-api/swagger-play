@@ -55,6 +55,18 @@ class CatController extends Controller {
     def no_route = Action {
       request => Ok("test case")
     }
+
+  @ApiOperation(value = "test issue #43",
+    nickname = "test issue #43_nick",
+    notes = "test issue #43_notes",
+    response = classOf[testdata.Cat],
+    responseContainer = "List",
+    httpMethod = "GET")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "test_issue_43_implicit_param", dataType = "Option[Int]", value = "test issue #43 implicit param", paramType = "query")))
+  def testIssue43(test_issue_43_param:  Option[Int]) = Action {
+    request => Ok("test issue #43")
+  }
 }
 
 case class Cat(id: Long, name: String)

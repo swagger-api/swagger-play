@@ -2,7 +2,7 @@ import java.io.File
 
 import io.swagger.config.ScannerFactory
 import io.swagger.models.{ModelImpl, HttpMethod}
-import io.swagger.models.parameters.{BodyParameter, PathParameter}
+import io.swagger.models.parameters.{QueryParameter, BodyParameter, PathParameter}
 import io.swagger.models.properties.{RefProperty, ArrayProperty}
 import play.modules.swagger._
 import org.specs2.mutable._
@@ -24,6 +24,7 @@ GET /api/pointsofinterest testdata.PointOfInterestController.list(eastingMin:Dou
 GET /api/dog testdata.DogController.list
 PUT /api/dog testdata.DogController.add1
 GET /api/cat @testdata.CatController.list
+GET /api/cat43 @testdata.CatController.testIssue43(test_issue_43_param: Option[Int])
 PUT /api/cat @testdata.CatController.add1
 GET /api/fly testdata.FlyController.list
 PUT /api/dog testdata.DogController.add1
@@ -72,11 +73,13 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       val docRoot = ""
       val swagger = ApiListingCache.listing(docRoot, "127.0.0.1")
 
-      Logger.debug ("swagger: " + toJsonString(swagger.get))
+      Logger.debug ("swagger: " + toJsonString(swagger))
+      swagger must beSome
+
       swagger must beSome
       swagger.get.getSwagger must beEqualTo("2.0")
       swagger.get.getBasePath must beEqualTo(basePath)
-      swagger.get.getPaths.size must beEqualTo(6)
+      swagger.get.getPaths.size must beEqualTo(7)
       swagger.get.getDefinitions.size must beEqualTo(5)
       swagger.get.getHost must beEqualTo(swaggerConfig.getHost)
       swagger.get.getInfo.getContact.getName must beEqualTo(swaggerConfig.getContact)
@@ -132,6 +135,23 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       opCatPut.getConsumes must beNull
       opCatPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
       opCatPut.getProduces must beNull
+
+      val pathCat43 = swagger.get.getPaths.get("/cat43")
+      pathCat43.getOperations.size must beEqualTo(1)
+
+      val opCatGet43 = pathCat43.getOperationMap.get(HttpMethod.GET)
+      opCatGet43.getOperationId must beEqualTo("test issue #43_nick")
+      opCatGet43.getResponses.get("200").getSchema.asInstanceOf[ArrayProperty].getItems.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("Cat")
+
+      opCatGet43.getParameters.head.getName must beEqualTo("test_issue_43_param")
+      opCatGet43.getParameters.head.getIn must beEqualTo("query")
+      opCatGet43.getParameters.head.asInstanceOf[QueryParameter].getType must beEqualTo("integer")
+
+      opCatGet43.getParameters.get(1).getName must beEqualTo("test_issue_43_implicit_param")
+      opCatGet43.getParameters.get(1).getIn must beEqualTo("query")
+      opCatGet43.getParameters.get(1).asInstanceOf[QueryParameter].getType must beEqualTo("integer")
+
+
 
       val pathDog = swagger.get.getPaths.get("/dog")
       pathDog.getOperations.size must beEqualTo(2)
