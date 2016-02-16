@@ -1,7 +1,6 @@
 package play.modules.swagger;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.annotations.*;
 import io.swagger.annotations.Info;
 import io.swagger.converter.ModelConverters;
@@ -13,6 +12,7 @@ import io.swagger.models.parameters.*;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
 import io.swagger.util.BaseReaderUtils;
+import io.swagger.util.Json;
 import io.swagger.util.ParameterProcessor;
 import io.swagger.util.PrimitiveType;
 import io.swagger.util.ReflectionUtils;
@@ -20,11 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.modules.swagger.util.CrossUtil;
 import play.routes.compiler.*;
+import scala.Option;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlayReader {
 
@@ -192,7 +195,7 @@ public class PlayReader {
                         }
                         path.set(httpMethod, operation);
                         try {
-                            readImplicitParameters(method, operation);
+                            readImplicitParameters(method, operation, cls);
                         } catch (Exception e) {
                             throw e;
                         }
@@ -350,11 +353,11 @@ public class PlayReader {
         info.getVendorExtensions().putAll(BaseReaderUtils.parseExtensions(infoConfig.extensions()));
     }
 
-    private void readImplicitParameters(Method method, Operation operation) {
+    private void readImplicitParameters(Method method, Operation operation, Class<?> cls) {
         ApiImplicitParams implicitParams = method.getAnnotation(ApiImplicitParams.class);
         if (implicitParams != null && implicitParams.value().length > 0) {
             for (ApiImplicitParam param : implicitParams.value()) {
-                Parameter p = readImplicitParam(param);
+                Parameter p = readImplicitParam(param, cls);
                 if (p != null) {
                     operation.addParameter(p);
                 }
@@ -362,7 +365,7 @@ public class PlayReader {
         }
     }
 
-    protected io.swagger.models.parameters.Parameter readImplicitParam(ApiImplicitParam param) {
+    protected io.swagger.models.parameters.Parameter readImplicitParam(ApiImplicitParam param, Class<?> cls) {
         final Parameter p;
         if (param.paramType().equalsIgnoreCase("path")) {
             p = new PathParameter();
@@ -380,18 +383,31 @@ public class PlayReader {
         }
         Type type = null;
         // Swagger ReflectionUtils can't handle file or array datatype
-        if (!"file".equalsIgnoreCase(param.dataType()) && !"array".equalsIgnoreCase(param.dataType())){
-            type = typeFromString(param.dataType());
+        if (!"".equalsIgnoreCase(param.dataType()) && !"file".equalsIgnoreCase(param.dataType()) && !"array".equalsIgnoreCase(param.dataType())){
+            type = typeFromString(param.dataType(), cls);
+
         }
-        return ParameterProcessor.applyAnnotations(getSwagger(), p, type == null ? String.class : type, Collections.singletonList(param));
+        Parameter result =  ParameterProcessor.applyAnnotations(getSwagger(), p, type == null ? String.class : type, Collections.singletonList(param));
+
+        if (result instanceof AbstractSerializableParameter && type != null) {
+            Property schema = createProperty(type);
+            ((AbstractSerializableParameter)p).setProperty(schema);
+        }
+
+        return result;
+
     }
 
-    private static Type typeFromString(String type) {
+    private static Type typeFromString(String type, Class<?> cls) {
         final PrimitiveType primitive = PrimitiveType.fromName(type);
         if (primitive != null) {
             return primitive.getKeyClass();
         }
         try {
+            Type routeType = getOptionTypeFromString (type, cls);
+
+            if (routeType != null) return routeType;
+
             return Thread.currentThread().getContextClassLoader().loadClass(type);
         } catch (Exception e) {
             Logger.error(String.format("Failed to resolve '%s' into class", type), e);
@@ -522,37 +538,69 @@ public class PlayReader {
         return operation;
     }
 
-    private Type getParamType(Class<?> cls, Method method, String simpleTypeName) {
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        for (Type genericParameterType : genericParameterTypes) {
-            final Type type = TypeFactory.defaultInstance().constructType(genericParameterType, cls);
-            final Class<?> paramClass = ((JavaType) type).getRawClass();
-            if (simpleTypeName.equalsIgnoreCase(paramClass.getSimpleName())) {
-                return type;
-            }
-            if (simpleTypeName.equalsIgnoreCase(paramClass.getName())) {
-                return type;
+
+    final static class OptionTypeResolver {
+        private Option<Integer> optionTypeInt;
+        private Option<Long> optionTypeLong;
+        private Option<Byte> optionTypeByte;
+        private Option<Boolean> optionTypeBoolean;
+        private Option<Character> optionTypeChar;
+        private Option<Float> optionTypeFloat;
+        private Option<Double> optionTypeDouble;
+        private Option<Short> optionTypeShort;
+
+        static Type resolveOptionType (String innerType, Class<?> cls) {
+            try {
+                return Json.mapper().getTypeFactory().constructType(
+                        OptionTypeResolver.class.getDeclaredField("optionType" + innerType).getGenericType(), cls);
+            } catch (NoSuchFieldException e) {
+                return null;
             }
         }
-        return null;
+    }
+
+    private static Type getOptionTypeFromString (String simpleTypeName, Class<?> cls) {
+
+        if (simpleTypeName == null) return null;
+        String regex = "(Option|scala\\.Option)\\s*\\[\\s*(Int|Long|Float|Double|Byte|Short|Char|Boolean)\\s*\\]\\s*$";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(simpleTypeName);
+        if (matcher.find())
+        {
+            String enhancedType = matcher.group(2);
+            return OptionTypeResolver.resolveOptionType(enhancedType, cls);
+        } else {
+            return null;
+        }
+    }
+    private Type getParamType(Class<?> cls, Method method, String simpleTypeName, int position) {
+
+        try {
+            Type type = getOptionTypeFromString (simpleTypeName, cls);
+            if (type != null) return type;
+
+            Type[] genericParameterTypes = method.getGenericParameterTypes();
+            return Json.mapper().getTypeFactory().constructType(genericParameterTypes[position], cls);
+        } catch (Exception e) {
+            Logger.error(String.format("Exception getting parameter type for method %s, param %s at position %d"), e);
+            return null;
+        }
+
     }
 
     private List<Annotation> getParamAnnotations(Class<?> cls, Type[] genericParameterTypes, Annotation[][] paramAnnotations, String simpleTypeName, int fieldPosition) {
-        Type type = TypeFactory.defaultInstance().constructType(genericParameterTypes[fieldPosition], cls);
-        Class<?> paramClass = ((JavaType)type).getRawClass();
-        if (simpleTypeName.equalsIgnoreCase(paramClass.getSimpleName())) {
+        try {
             return Arrays.asList(paramAnnotations[fieldPosition]);
+        } catch (Exception e) {
+            Logger.error(String.format("Exception getting parameter type for method %s, param %s at position %d"), e);
+            return null;
         }
-        if (simpleTypeName.equalsIgnoreCase(paramClass.getName())) {
-            return Arrays.asList(paramAnnotations[fieldPosition]);
-        }
-        return null;
     }
 
     private List<Annotation> getParamAnnotations(Class<?> cls, Method method, String simpleTypeName, int fieldPosition) {
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
-
         List<Annotation> annotations = getParamAnnotations(cls, genericParameterTypes, paramAnnotations, simpleTypeName, fieldPosition);
         if (annotations != null) {
             return annotations;
@@ -587,7 +635,7 @@ public class PlayReader {
             if (def.startsWith("\"") && def.endsWith("\"")){
                 def = def.substring(1,def.length()-1);
             }
-            Type type = getParamType(cls, method, p.typeName());
+            Type type = getParamType(cls, method, p.typeName(), fieldPosition);
             Property schema = createProperty(type);
             if (route.path().has(p.name())) {
                 // it's a path param
@@ -602,9 +650,7 @@ public class PlayReader {
             }
             parameter.setName(p.name());
             List<Annotation> annotations = getParamAnnotations(cls, method, p.typeName(), fieldPosition);
-
             ParameterProcessor.applyAnnotations(getSwagger(), parameter, type, annotations);
-
             parameters.add(parameter);
             fieldPosition++;
         }
@@ -623,7 +669,7 @@ public class PlayReader {
     }
 
     private static boolean isVoid(Type type) {
-        final Class<?> cls = TypeFactory.defaultInstance().constructType(type).getRawClass();
+        final Class<?> cls = Json.mapper().getTypeFactory().constructType(type).getRawClass();
         return Void.class.isAssignableFrom(cls) || Void.TYPE.isAssignableFrom(cls);
     }
 
@@ -631,7 +677,7 @@ public class PlayReader {
         if (type == null) {
             return false;
         }
-        final JavaType javaType = TypeFactory.defaultInstance().constructType(type);
+        final JavaType javaType = Json.mapper().getTypeFactory().constructType(type);
         if (isVoid(javaType)) {
             return false;
         }
