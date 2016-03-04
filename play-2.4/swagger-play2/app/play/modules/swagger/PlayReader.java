@@ -574,6 +574,7 @@ public class PlayReader {
             return null;
         }
     }
+
     private Type getParamType(Class<?> cls, Method method, String simpleTypeName, int position) {
 
         try {
