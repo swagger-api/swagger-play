@@ -99,9 +99,9 @@ class ApiHelpController extends SwaggerBaseApiController {
           val msg = new ErrorResponse(500, "api listing for path " + path + " not found")
           Logger("swagger").error(msg.message)
           if (returnXml(request)) {
-            InternalServerError.chunked(Enumerator(toXmlString(msg).getBytes("UTF-8"))).as("application/xml")
+            InternalServerError.chunked(Source.single(toXmlString(msg).getBytes("UTF-8"))).as("application/xml")
           } else {
-            InternalServerError.chunked(Enumerator(toJsonString(msg).getBytes("UTF-8"))).as("application/json")
+            InternalServerError.chunked(Source.single(toJsonString(msg).getBytes("UTF-8"))).as("application/json")
           }
       }
   }
@@ -184,7 +184,7 @@ class SwaggerBaseApiController extends Controller {
 
   protected def XmlResponse(data: Any) = {
     val xmlValue = toXmlString(data)
-    Ok.chunked(Enumerator(xmlValue.getBytes("UTF-8"))).as("application/xml")
+    Ok.chunked(Source.single(xmlValue.getBytes("UTF-8"))).as("application/xml")
   }
 
   protected def returnValue(request: Request[_], obj: Any): Result = {
@@ -204,9 +204,8 @@ class SwaggerBaseApiController extends Controller {
   }
 
   protected def JsonResponse(data: Any) = {
-    val jsonValue = toJsonString(data)
-    val jsonBytes = jsonValue.getBytes("UTF-8")
-    val source = Source.fromPublisher(Streams.enumeratorToPublisher(Enumerator(jsonBytes))).map(ByteString.apply)
+    val jsonBytes = toJsonString(data).getBytes("UTF-8")
+    val source = Source.single(jsonBytes).map(ByteString.apply)
     Result (
       header = ResponseHeader(200, Map(CONTENT_LENGTH -> jsonBytes.length.toString)),
       body = HttpEntity.Streamed(source, None, None)
