@@ -16,9 +16,11 @@
 
 package controllers
 
+import play.api.http.HttpEntity
 import play.api.mvc._
 import play.api.Logger
 import play.api.libs.iteratee.Enumerator
+import play.api.libs.streams.Streams
 import play.modules.swagger.ApiListingCache
 
 import javax.xml.bind.annotation._
@@ -32,6 +34,9 @@ import io.swagger.config.FilterFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+
+import akka.stream.scaladsl._
+import akka.util.ByteString
 
 object ErrorResponse {
   val ERROR = 1
@@ -201,9 +206,10 @@ class SwaggerBaseApiController extends Controller {
   protected def JsonResponse(data: Any) = {
     val jsonValue = toJsonString(data)
     val jsonBytes = jsonValue.getBytes("UTF-8")
+    val source = Source.fromPublisher(Streams.enumeratorToPublisher(Enumerator(jsonBytes))).map(ByteString.apply)
     Result (
       header = ResponseHeader(200, Map(CONTENT_LENGTH -> jsonBytes.length.toString)),
-      body = Enumerator(jsonBytes)
+      body = HttpEntity.Streamed(source, None, None)
     ).as ("application/json")
   }
 }
