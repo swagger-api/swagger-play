@@ -3,8 +3,7 @@ version := "1.6.0"
 
 checksums in update := Nil
 
-scalaVersion:= "2.11.6"
-crossScalaVersions := Seq("2.11.6", "2.11.7")
+scalaVersion:= "2.11.7"
 
 libraryDependencies ++= Seq(
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
