@@ -119,11 +119,9 @@ swagger.api.info = {
   license : (String) - Terms Of Service | default : empty,
   licenseUrl : (String) - Terms Of Service | default : empty
 }
+```
 
 ## Note on Dependency Injection
 This plugin works by default if your application uses Runtime dependency injection.
 
 Nevertheless, a helper is provided `SwaggerApplicationLoader` to ease the use of this plugin with Compile Time Dependency Injection. 
-
-```
-
