@@ -28,6 +28,8 @@ import scala.concurrent.Future
 import scala.collection.JavaConversions._
 import play.routes.compiler.{Route => PlayRoute, Include => PlayInclude, RoutesFileParser, StaticPart}
 
+import scala.io.Source
+
 trait SwaggerPlugin
 
 class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Router, app: Application) extends SwaggerPlugin {
@@ -116,7 +118,9 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     //Parses multiple route files recursively
     def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
       logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
-      val parsedRoutes = RoutesFileParser.parse(new File(app.classloader.getResource(routesFile).toURI))
+
+      val routesContent =  Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
+      val parsedRoutes = RoutesFileParser.parseContent(routesContent,new File(routesFile))
       val routes = parsedRoutes.right.get.collect {
         case (route: PlayRoute) => {
           logger.debug(s"Adding route '$route'")
