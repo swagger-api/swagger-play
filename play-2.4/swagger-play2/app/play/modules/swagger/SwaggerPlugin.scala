@@ -17,6 +17,7 @@
 package play.modules.swagger
 
 import java.io.File
+import java.nio.file.{StandardCopyOption, Files}
 import javax.inject.Inject
 import io.swagger.config.{FilterFactory, ScannerFactory}
 import play.modules.swagger.util.SwaggerContext
@@ -114,9 +115,17 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       }
     }
     //Parses multiple route files recursively
-    def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
+    def parseRoutesHelper(routesFile: String, prefix: String, tmpFileIndex: Int): List[PlayRoute] = {
       logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
-      val parsedRoutes = RoutesFileParser.parse(new File(app.classloader.getResource(routesFile).toURI))
+
+      val stream = app.classloader.getResourceAsStream(routesFile)
+      val tempRoutesFile = File.createTempFile(s"play-routes-${tmpFileIndex}", null)
+      tempRoutesFile.deleteOnExit()
+      Files.copy(stream, tempRoutesFile.toPath, StandardCopyOption.REPLACE_EXISTING)
+      logger.debug(s"Parsing routes from temp file ${tempRoutesFile.getAbsolutePath}")
+      val parsedRoutes = RoutesFileParser.parse(tempRoutesFile)
+      tempRoutesFile.delete()
+
       val routes = parsedRoutes.right.get.collect {
         case (route: PlayRoute) => {
           logger.debug(s"Adding route '$route'")
@@ -124,13 +133,13 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
         }
         case (include: PlayInclude) => {
           logger.debug(s"Processing route include $include")
-          parseRoutesHelper(playRoutesClassNameToFileName(include.router), include.prefix)
+          parseRoutesHelper(playRoutesClassNameToFileName(include.router), include.prefix, tmpFileIndex + 1)
         }
       }.flatten
       logger.debug(s"Finished processing route file '$routesFile'")
       routes
     }
-    parseRoutesHelper(routesFile, "")
+    parseRoutesHelper(routesFile, "", 0)
   }
 
   val routesRules = Map(routes map
