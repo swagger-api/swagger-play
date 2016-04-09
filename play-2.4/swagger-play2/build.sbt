@@ -17,6 +17,8 @@ libraryDependencies ++= Seq(
   "org.specs2"        %% "specs2-junit"               % "3.6.6"            % "test",
   "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
 
+mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
+
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
   if (v.trim.endsWith("SNAPSHOT"))
