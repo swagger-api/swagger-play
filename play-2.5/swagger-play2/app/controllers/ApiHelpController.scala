@@ -16,15 +16,16 @@
 
 package controllers
 
+import akka.util.ByteString
 import play.api.mvc._
 import play.api.Logger
 import play.api.libs.iteratee.Enumerator
+import play.api.http.HttpEntity
 import play.modules.swagger.ApiListingCache
-
 import javax.xml.bind.annotation._
-
 import java.io.StringWriter
 
+import akka.stream.scaladsl.Source
 import io.swagger.util.Json
 import io.swagger.models.Swagger
 import io.swagger.core.filter.SpecFilter
@@ -94,9 +95,9 @@ class ApiHelpController extends SwaggerBaseApiController {
           val msg = new ErrorResponse(500, "api listing for path " + path + " not found")
           Logger("swagger").error(msg.message)
           if (returnXml(request)) {
-            InternalServerError.chunked(Enumerator(toXmlString(msg).getBytes("UTF-8"))).as("application/xml")
+            InternalServerError.chunked(Source.single(toXmlString(msg).getBytes("UTF-8"))).as("application/xml")
           } else {
-            InternalServerError.chunked(Enumerator(toJsonString(msg).getBytes("UTF-8"))).as("application/json")
+            InternalServerError.chunked(Source.single(toJsonString(msg).getBytes("UTF-8"))).as("application/json")
           }
       }
   }
@@ -179,13 +180,13 @@ class SwaggerBaseApiController extends Controller {
 
   protected def XmlResponse(data: Any) = {
     val xmlValue = toXmlString(data)
-    Ok.chunked(Enumerator(xmlValue.getBytes("UTF-8"))).as("application/xml")
+    Ok.chunked(Source.single(xmlValue.getBytes("UTF-8"))).as("application/xml")
   }
 
   protected def returnValue(request: Request[_], obj: Any): Result = {
     val response = returnXml(request) match {
       case true => XmlResponse(obj)
-      case false => JsonResponse(obj)
+      case false => JsonResponse(obj, request)
     }
     response.withHeaders(AccessControlAllowOrigin)
   }
@@ -198,12 +199,13 @@ class SwaggerBaseApiController extends Controller {
     }
   }
 
-  protected def JsonResponse(data: Any) = {
+  protected def JsonResponse(data: Any, request: play.api.mvc.Request[_]) = {
     val jsonValue = toJsonString(data)
     val jsonBytes = jsonValue.getBytes("UTF-8")
+    val charset = s";charset=${request.charset.getOrElse("utf-8")}"
     Result (
       header = ResponseHeader(200, Map(CONTENT_LENGTH -> jsonBytes.length.toString)),
-      body = Enumerator(jsonBytes)
-    ).as ("application/json")
+      body = HttpEntity.Strict(ByteString(jsonValue, "UTF-8"), Some(s"application/json$charset"))
+    )
   }
 }

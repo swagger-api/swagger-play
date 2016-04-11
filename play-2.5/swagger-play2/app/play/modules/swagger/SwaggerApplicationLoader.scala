@@ -13,9 +13,9 @@ trait SwaggerApplicationLoader extends ApplicationLoader {
     val comp = components(context)
     val application = comp.application
     val life : ApplicationLifecycle = new ApplicationLifecycle() {
-      override def addStopHook(hook: () => Future[Unit]): Unit = ()
+      override def addStopHook(hook: () => Future[_]): Unit = ()
     }
-    new SwaggerPluginImpl(life, comp.router, application)
+    new SwaggerPluginImpl(life, application.configuration, comp.environment)
     application
   }
 }
