@@ -1,5 +1,5 @@
 name := "swagger-play2"
-version := "1.5.2-SNAPSHOT"
+version := "1.5.2"
 
 checksums in update := Nil
 
@@ -9,7 +9,7 @@ crossScalaVersions := Seq("2.11.6", "2.11.7")
 libraryDependencies ++= Seq(
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
   "io.swagger"         % "swagger-core"               % "1.5.8",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.2-SNAPSHOT",
+  "io.swagger"        %% "swagger-scala-module"       % "1.0.2",
   "com.typesafe.play" %% "routes-compiler"            % "2.4.6",
   "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
   "org.specs2"        %% "specs2-core"                % "3.6.6"            % "test",
@@ -64,6 +64,11 @@ pomExtra := {
       <id>benmccann</id>
       <name>Ben McCann</name>
       <url>http://www.benmccann.com/</url>
+    </developer>
+    <developer>
+      <id>frantuma</id>
+      <name>Francesco Tumanischvili</name>
+      <url>http://www.ft-software.net/</url>
     </developer>
   </developers>
 }
