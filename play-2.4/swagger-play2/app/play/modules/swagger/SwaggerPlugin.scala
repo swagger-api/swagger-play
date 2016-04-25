@@ -1,18 +1,18 @@
 /**
- * Copyright 2014 Reverb Technologies, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2014 Reverb Technologies, Inc.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package play.modules.swagger
 
@@ -54,33 +54,33 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   val title = config.getString("swagger.api.info.title") match {
     case None => ""
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   val description = config.getString("swagger.api.info.description") match {
     case None => ""
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   val termsOfServiceUrl = config.getString("swagger.api.info.termsOfServiceUrl") match {
     case None => ""
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   val contact = config.getString("swagger.api.info.contact") match {
     case None => ""
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   val license = config.getString("swagger.api.info.license") match {
     case None => ""
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   val licenseUrl = config.getString("swagger.api.info.licenseUrl") match {
     // licenceUrl needs to be a valid URL to validate against schema
     case None => "http://licenseUrl"
-    case Some(value)=> value
+    case Some(value) => value
   }
 
   SwaggerContext.registerClassLoader(app.classloader)
@@ -112,19 +112,22 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       case false => "routes"
       case true => config.getString("play.http.router") match {
         case None => "routes"
-        case Some(value)=> playRoutesClassNameToFileName(value)
+        case Some(value) => playRoutesClassNameToFileName(value)
       }
     }
     //Parses multiple route files recursively
     def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
       logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
 
-      val routesContent =  Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
-      val parsedRoutes = RoutesFileParser.parseContent(routesContent,new File(routesFile))
+      val routesContent = Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
+      val parsedRoutes = RoutesFileParser.parseContent(routesContent, new File(routesFile))
       val routes = parsedRoutes.right.get.collect {
         case (route: PlayRoute) => {
           logger.debug(s"Adding route '$route'")
-          Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix + "/") +: route.path.parts)))
+          route.path.parts match {
+            case Nil => Seq(route.copy(path = route.path.copy(parts = Seq(StaticPart(prefix)))))
+            case x => Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix + "/") +: route.path.parts)))
+          }
         }
         case (include: PlayInclude) => {
           logger.debug(s"Processing route include $include")
@@ -137,13 +140,11 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     parseRoutesHelper(routesFile, "")
   }
 
-  val routesRules = Map(routes map
-    { route =>
-    {
-      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-      (routeName -> route)
-    }
-    } : _*)
+  val routesRules = Map(routes map { route => {
+    val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+    (routeName -> route)
+  }
+  }: _*)
 
   val route = new RouteWrapper(routesRules)
   RouteFactory.setRoute(route)
