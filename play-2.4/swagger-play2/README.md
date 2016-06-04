@@ -63,17 +63,17 @@ GET     /swagger.json           controllers.ApiHelpController.getResources
 In your controller for, say your "pet" resource:
 
 ```scala
-@Api(value = "/pet", description = "Operations about pets")
-class PetApiController extends BaseApiController {
-
-  @ApiOperation(nickname = "getPetById", value = "Find pet by ID", notes = "Returns a pet", response = classOf[models.Pet], httpMethod = "GET")
   @ApiResponses(Array(
     new ApiResponse(code = 400, message = "Invalid ID supplied"),
     new ApiResponse(code = 404, message = "Pet not found")))
   def getPetById(
-    @ApiParam(value = "ID of the pet to fetch") @PathParam("id") id: String) = Action {
-
-  ...
+    @ApiParam(value = "ID of the pet to fetch") id: String) = Action {
+    implicit request =>
+      petData.getPetbyId(getLong(0, 100000, 0, id)) match {
+        case Some(pet) => JsonResponse(pet)
+        case _ => JsonResponse(new value.ApiResponse(404, "Pet not found"), 404)
+      }
+  }
 
 ```
 
