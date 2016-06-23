@@ -14,11 +14,11 @@ Please see the project [Root Folder](https://github.com/swagger-api/swagger-play
 
 Scala Versions | Play Version | Swagger Version | swagger-play version
 ---------------|--------------|-----------------|---------------------
-2.8.1          | 1.2.x        | 1.2             | 0.1
-2.9.1, 2.10.4  | 2.1.x        | 1.2             | 1.3.5
-2.9.1, 2.10.4  | 2.2.x        | 1.2             | 1.3.7
-2.10.4, 2.11.1 | 2.3.x        | 1.2             | 1.3.12
 2.11.6, 2.11.7 | 2.4.x        | 2.0             | 1.5.0
+2.10.4, 2.11.1 | 2.3.x        | 1.2             | 1.3.12
+2.9.1, 2.10.4  | 2.2.x        | 1.2             | 1.3.7
+2.9.1, 2.10.4  | 2.1.x        | 1.2             | 1.3.5
+2.8.1          | 1.2.x        | 1.2             | 0.1
 
 Other Swagger-Play integrations
 -------
