@@ -124,7 +124,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       val routes = parsedRoutes.right.get.collect {
         case (route: PlayRoute) => {
           logger.debug(s"Adding route '$route'")
-          Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix + "/") +: route.path.parts)))
+          Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix) +: route.path.parts)))
         }
         case (include: PlayInclude) => {
           logger.debug(s"Processing route include $include")

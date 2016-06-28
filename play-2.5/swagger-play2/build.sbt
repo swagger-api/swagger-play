@@ -1,12 +1,12 @@
 name := "swagger-play2"
-version := "1.5.3-SNAPSHOT"
+version := "1.5.3.2"
 
 checksums in update := Nil
 
-scalaVersion:= "2.11.6"
-crossScalaVersions := Seq("2.11.6", "2.11.7")
+scalaVersion:= "2.11.7"
 
 libraryDependencies ++= Seq(
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.7.2",
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
   "io.swagger"         % "swagger-core"               % "1.5.8",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.2",
