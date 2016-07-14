@@ -8,7 +8,7 @@ object ApiListingCache {
   var cache: Option[Swagger] = None
 
   def listing(docRoot: String, host: String): Option[Swagger] = {
-    cache.orElse {
+    //cache.orElse {
       Logger("swagger").debug("Loading API metadata")
 
       val scanner = ScannerFactory.getScanner()
@@ -24,10 +24,14 @@ object ApiListingCache {
           // no config, do nothing
         }
       }
-      cache = Some(swagger)
-      cache
-    }
-    cache.get.setHost(host)
-    cache
+
+      Some(swagger)
+
+      //cache = Some(swagger)
+      //cache
+    //}
+
+    //cache.get.setHost(host)
+    //cache
   }
 }

@@ -65,7 +65,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
   ScannerFactory.setScanner(scanner)
   val route = new RouteWrapper(routesRules)
   RouteFactory.setRoute(route)
-
+  
   "ApiListingCache" should {
 
     "load all API specs" in {
@@ -191,6 +191,20 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       dogDef.getType must beEqualTo("object")
       dogDef.getProperties.containsKey("id") must beTrue
       dogDef.getProperties.containsKey("name") must beTrue
+    }
+
+    "cache contains all paths after filtering" in {
+      val docRoot = ""
+      val swaggerAll = ApiListingCache.listing(docRoot, "127.0.0.1")
+      swaggerAll.get.getPaths.size must beEqualTo(7)
+
+      val swaggerCat = ApiListingCache.listing(docRoot, "127.0.0.1")
+      swaggerCat.get.setPaths(swaggerCat.get.getPaths.filterKeys(_.startsWith("/cat") ))
+      swaggerCat.get.getPaths.size must beEqualTo(2)
+
+      val swaggerDog = ApiListingCache.listing(docRoot, "127.0.0.1")
+      swaggerDog.get.setPaths(swaggerDog.get.getPaths.filterKeys(_.startsWith("/dog") ))
+      swaggerDog.get.getPaths.size must beEqualTo(2)
     }
   }
 
