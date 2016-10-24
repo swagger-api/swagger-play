@@ -4,6 +4,7 @@ version := "1.5.3.2"
 checksums in update := Nil
 
 scalaVersion:= "2.11.7"
+crossScalaVersions := Seq("2.11.7", "2.10.6")
 
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.7.2",
