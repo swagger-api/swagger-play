@@ -584,7 +584,7 @@ public class PlayReader {
             Type[] genericParameterTypes = method.getGenericParameterTypes();
             return Json.mapper().getTypeFactory().constructType(genericParameterTypes[position], cls);
         } catch (Exception e) {
-            Logger.error(String.format("Exception getting parameter type for method %s, param %s at position %d"), e);
+            Logger.error(String.format("Exception getting parameter type for method %s, param %s at position %d", method, simpleTypeName, position), e);
             return null;
         }
 
@@ -594,7 +594,7 @@ public class PlayReader {
         try {
             return Arrays.asList(paramAnnotations[fieldPosition]);
         } catch (Exception e) {
-            Logger.error(String.format("Exception getting parameter type for method %s, param %s at position %d"), e);
+            Logger.error(String.format("Exception getting parameter type for %s at position %d", simpleTypeName, fieldPosition), e);
             return null;
         }
     }
