@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
-/*
+
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
   if (v.trim.endsWith("SNAPSHOT"))
@@ -27,8 +27,7 @@ publishTo <<= version { (v: String) =>
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-*/
-publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+
 
 publishArtifact in Test := false
 publishMavenStyle := true
