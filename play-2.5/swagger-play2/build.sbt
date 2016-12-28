@@ -1,5 +1,5 @@
 name := "swagger-play2"
-version := "1.5.3"
+version := "1.5.4-SNAPSHOT"
 
 checksums in update := Nil
 
@@ -9,7 +9,7 @@ crossScalaVersions := Seq("2.11.7", "2.10.6")
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.7.2",
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
-  "io.swagger"         % "swagger-core"               % "1.5.8",
+  "io.swagger"         % "swagger-core"               % "1.5.10",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.2",
   "com.typesafe.play" %% "routes-compiler"            % "2.5.4",
   "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
-
+/*
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
   if (v.trim.endsWith("SNAPSHOT"))
@@ -27,6 +27,9 @@ publishTo <<= version { (v: String) =>
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+*/
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+
 publishArtifact in Test := false
 publishMavenStyle := true
 pomIncludeRepository := { x => false }

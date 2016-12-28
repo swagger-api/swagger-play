@@ -5,13 +5,14 @@ import io.swagger.annotations._
 import play.api.mvc.{Action, Controller}
 
 @Api(value = "/apitest/cats", description = "play with cats")
+@SwaggerDefinition(securityDefinition = new SecurityDefinition(apiKeyAuthDefintions = Array(new ApiKeyAuthDefinition(name= "api_key", key="api_key", in=ApiKeyAuthDefinition.ApiKeyLocation.HEADER))))
 class CatController extends Controller {
 
   @ApiOperation(value = "addCat1",
       httpMethod = "PUT",
-      authorizations = Array(),
       consumes = "",
-      protocols = "")
+      protocols = "",
+      authorizations = Array(new Authorization(value="api_key")))
     @ApiImplicitParams(Array(
       new ApiImplicitParam(name = "cat", value = "Cat object to add", required = true, dataType = "testdata.Cat", paramType = "body")))
     def add1 = Action {
