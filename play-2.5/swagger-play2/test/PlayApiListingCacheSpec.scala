@@ -36,7 +36,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
     }
   }
 
-  val routesRules = Map(routesList map 
+  val routesRules = Map(routesList map
   { route =>
     {
       val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
@@ -80,7 +80,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       swagger.get.getSwagger must beEqualTo("2.0")
       swagger.get.getBasePath must beEqualTo(basePath)
       swagger.get.getPaths.size must beEqualTo(7)
-      swagger.get.getDefinitions.size must beEqualTo(5)
+      swagger.get.getDefinitions.size must beEqualTo(7)
       swagger.get.getHost must beEqualTo(swaggerConfig.getHost)
       swagger.get.getInfo.getContact.getName must beEqualTo(swaggerConfig.getContact)
       swagger.get.getInfo.getVersion must beEqualTo(swaggerConfig.getVersion)
@@ -151,8 +151,6 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       opCatGet43.getParameters.get(1).getIn must beEqualTo("query")
       opCatGet43.getParameters.get(1).asInstanceOf[QueryParameter].getType must beEqualTo("integer")
 
-
-
       val pathDog = swagger.get.getPaths.get("/dog")
       pathDog.getOperations.size must beEqualTo(2)
 
@@ -204,4 +202,3 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
     }
   }
 }
-

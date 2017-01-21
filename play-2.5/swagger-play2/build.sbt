@@ -1,21 +1,21 @@
 name := "swagger-play2"
-version := "1.5.3"
+version := "1.5.4-SNAPSHOT"
 
 checksums in update := Nil
 
-scalaVersion:= "2.11.7"
-crossScalaVersions := Seq("2.11.7", "2.10.6")
+scalaVersion:= "2.11.8"
+crossScalaVersions := Seq(scalaVersion.value, "2.10.6")
 
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.7.2",
-  "org.slf4j"          % "slf4j-api"                  % "1.6.4",
-  "io.swagger"         % "swagger-core"               % "1.5.8",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.2",
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.6",
+  "org.slf4j"          % "slf4j-api"                  % "1.7.21",
+  "io.swagger"         % "swagger-core"               % "1.5.12",
+  "io.swagger"        %% "swagger-scala-module"       % "1.0.3",
   "com.typesafe.play" %% "routes-compiler"            % "2.5.4",
   "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
-  "org.specs2"        %% "specs2-core"                % "3.6.6"            % "test",
-  "org.specs2"        %% "specs2-mock"                % "3.6.6"            % "test",
-  "org.specs2"        %% "specs2-junit"               % "3.6.6"            % "test",
+  "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
+  "org.specs2"        %% "specs2-mock"                % "3.8.7"            % "test",
+  "org.specs2"        %% "specs2-junit"               % "3.8.7"            % "test",
   "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
