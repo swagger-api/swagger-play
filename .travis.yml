@@ -11,10 +11,13 @@ cache:
 language: scala
 
 scala:
-  - 2.11.6
+  - 2.11.8
 
 script:
   - cd play-2.4/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - cd ../..
+  - cd play-2.5/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
   - find $HOME/.sbt -name "*.lock" | xargs rm
 
 jdk:

@@ -70,25 +70,25 @@ class ApiHelpController extends SwaggerBaseApiController {
   def getResources = Action {
     request =>
       implicit val requestHeader: RequestHeader = request
-      val host = requestHeader.host
-      val resourceListing = getResourceListing(host)
-      val responseStr = returnXml(request) match {
+      val host: String = requestHeader.host
+      val resourceListing: Swagger = getResourceListing(host)
+      val response: String = returnXml(request) match {
         case true => toXmlString(resourceListing)
         case false => toJsonString(resourceListing)
       }
-      returnValue(request, responseStr)
+      returnValue(request, response)
   }
 
   def getResource(path: String) = Action {
     request =>
       implicit val requestHeader: RequestHeader = request
-      val host = requestHeader.host
-      val apiListing = getApiListing(path, host)
-      val responseStr = returnXml(request) match {
+      val host: String = requestHeader.host
+      val apiListing: Swagger = getApiListing(path, host)
+      val response: String = returnXml(request) match {
         case true => toXmlString(apiListing)
         case false => toJsonString(apiListing)
       }
-      Option(responseStr) match {
+      Option(response) match {
         case Some(help) => returnValue(request, help)
         case None =>
           val msg = new ErrorResponse(500, "api listing for path " + path + " not found")
@@ -111,7 +111,7 @@ class SwaggerBaseApiController extends Controller {
   /**
    * Get a list of all top level resources
    */
-  protected def getResourceListing(host: String)(implicit requestHeader: RequestHeader) = {
+  protected def getResourceListing(host: String)(implicit requestHeader: RequestHeader): Swagger = {
     Logger("swagger").debug("ApiHelpInventory.getRootResources")
     val docRoot = ""
     val queryParams = (for((key, value) <- requestHeader.queryString) yield {
@@ -144,7 +144,7 @@ class SwaggerBaseApiController extends Controller {
   /**
    * Get detailed API/models for a given resource
    */
-  protected def getApiListing(resourceName: String, host: String)(implicit requestHeader: RequestHeader) = {
+  protected def getApiListing(resourceName: String, host: String)(implicit requestHeader: RequestHeader): Swagger = {
     Logger("swagger").debug("ApiHelpInventory.getResource(%s)".format(resourceName))
     val docRoot = ""
     val f = new SpecFilter
