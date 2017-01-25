@@ -1,10 +1,11 @@
 name := "swagger-play2"
-version := "1.5.3-SNAPSHOT"
+version := "1.5.4-SNAPSHOT"
 
 checksums in update := Nil
 
-scalaVersion:= "2.11.6"
-crossScalaVersions := Seq("2.11.6", "2.11.7", "2.10.6")
+scalaVersion := "2.10.6"
+
+crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.1")
 
 libraryDependencies ++= Seq(
   "org.slf4j"          % "slf4j-api"                  % "1.6.4",
