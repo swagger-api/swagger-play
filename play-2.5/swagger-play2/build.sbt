@@ -3,8 +3,9 @@ version := "1.5.4-SNAPSHOT"
 
 checksums in update := Nil
 
-scalaVersion:= "2.11.8"
-crossScalaVersions := Seq(scalaVersion.value, "2.10.6")
+scalaVersion := "2.11.8"
+
+crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.1")
 
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.6",
