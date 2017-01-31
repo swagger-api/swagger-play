@@ -1,140 +1,204 @@
-import com.wordnik.swagger.config.{ScannerFactory, SwaggerConfig, ConfigFactory}
-import com.wordnik.swagger.model.ApiListing
-import com.wordnik.swagger.reader.ClassReaders
-import play.modules.swagger._
+import java.io.File
 
+import io.swagger.config.ScannerFactory
+import io.swagger.models.{ModelImpl, HttpMethod}
+import io.swagger.models.parameters.{QueryParameter, BodyParameter, PathParameter}
+import io.swagger.models.properties.{RefProperty, ArrayProperty}
+import play.modules.swagger._
 import org.specs2.mutable._
 import org.specs2.mock.Mockito
-
-import com.wordnik.swagger.core.SwaggerSpec
-import scala.Some
-
+import play.api.Logger
+import io.swagger.util.Json
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import play.routes.compiler.{ Route => PlayRoute }
 
 class PlayApiListingCacheSpec extends Specification with Mockito {
 
   // set up mock for Play Router
-  val mockRoutes = mock[play.core.Router.Routes]
-  val routesDocumentation: Seq[(String, String, String)] = Seq(
-    ("GET", "/api/dog", "test.testdata.DogController.list"),
-    ("PUT", "/api/dog", "test.testdata.DogController.add1"),
-    ("GET", "/api/cat", "@test.testdata.CatController.list"),
-    ("GET", "/api/cat", "@test.testdata.CatController.add1"),
-    ("GET", "/api/fly", "test.testdata.FlyController.list")
-  )
-  mockRoutes.documentation returns routesDocumentation
+  val routesList = {
+    play.routes.compiler.RoutesFileParser.parseContent("""
+POST /api/document/:settlementId/files/:fileId/accept testdata.DocumentController.accept(settlementId:String,fileId:String)
+GET /api/search testdata.SettlementsSearcherController.search(personalNumber:String,propertyId:String)
+GET /api/pointsofinterest testdata.PointOfInterestController.list(eastingMin:Double,northingMin:Double,eastingMax:Double,northingMax:Double)
+GET /api/dog testdata.DogController.list
+PUT /api/dog testdata.DogController.add1
+GET /api/cat @testdata.CatController.list
+GET /api/cat43 @testdata.CatController.testIssue43(test_issue_43_param: Option[Int])
+PUT /api/cat @testdata.CatController.add1
+GET /api/fly testdata.FlyController.list
+PUT /api/dog testdata.DogController.add1
+PUT /api/dog/:id testdata.DogController.add0(id:String)
+    """, new File("")).right.get.collect {
+      case (route: PlayRoute) =>
+        val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+        route
+    }
+  }
+
+  val routesRules = Map(routesList map
+  { route =>
+    {
+      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+      routeName -> route
+    }
+  } : _*)
 
   val apiVersion = "test1"
-  val basePath = "http://aa.bb.com"
-  // SwaggerContext.registerClassLoader(ClassLoader.getSystemClassLoader)
-  ConfigFactory.setConfig(new SwaggerConfig(apiVersion, SwaggerSpec.version, basePath, ""))
-  ScannerFactory.setScanner(new PlayApiScanner(Some(mockRoutes)))
-  ClassReaders.reader = Some(new PlayApiReader(Some(mockRoutes)))
+  val basePath = "/api"
+
+  var swaggerConfig = new PlaySwaggerConfig()
+
+  swaggerConfig setDescription "description"
+  swaggerConfig setBasePath basePath
+  swaggerConfig setContact "contact"
+  swaggerConfig setHost "127.0.0.1"
+  swaggerConfig setVersion "beta"
+  swaggerConfig setTitle "title"
+  swaggerConfig setTermsOfServiceUrl "http://termsOfServiceUrl"
+  swaggerConfig setLicense "license"
+  swaggerConfig setLicenseUrl "http://licenseUrl"
+
+  PlayConfigFactory.setConfig(swaggerConfig)
+
+  var scanner = new PlayApiScanner()
+  ScannerFactory.setScanner(scanner)
+  val route = new RouteWrapper(routesRules)
+  RouteFactory.setRoute(route)
 
   "ApiListingCache" should {
 
     "load all API specs" in {
 
       val docRoot = ""
-      val listings = ApiListingCache.listing(docRoot)
-      listings must beSome
-      val listingMap: Map[String, ApiListing] = listings.get
+      val swagger = ApiListingCache.listing(docRoot, "127.0.0.1")
 
-      listingMap.toList.length must beEqualTo(2)
-      listingMap.get("/apitest/cats") must beSome
-      val catsApiListing = listingMap.get("/apitest/cats").get
+      Logger.debug ("swagger: " + toJsonString(swagger))
+      swagger must beSome
 
-      catsApiListing.apis.length must beEqualTo(1)
-      catsApiListing.apis.head.description must beNone
-      catsApiListing.apis.head.path must beEqualTo("/api/cat") // do we use this?
-      catsApiListing.apis.head.operations.length must beEqualTo(2)
-      // todo - look inside operations
+      swagger must beSome
+      swagger.get.getSwagger must beEqualTo("2.0")
+      swagger.get.getBasePath must beEqualTo(basePath)
+      swagger.get.getPaths.size must beEqualTo(7)
+      swagger.get.getDefinitions.size must beEqualTo(6)
+      swagger.get.getHost must beEqualTo(swaggerConfig.getHost)
+      swagger.get.getInfo.getContact.getName must beEqualTo(swaggerConfig.getContact)
+      swagger.get.getInfo.getVersion must beEqualTo(swaggerConfig.getVersion)
+      swagger.get.getInfo.getTitle must beEqualTo(swaggerConfig.getTitle)
+      swagger.get.getInfo.getTermsOfService must beEqualTo(swaggerConfig.getTermsOfServiceUrl)
+      swagger.get.getInfo.getLicense.getName must beEqualTo(swaggerConfig.getLicense)
 
-      catsApiListing.apiVersion must beEqualTo("test1")
-      catsApiListing.authorizations must beEqualTo(List.empty)
-      catsApiListing.basePath must beEqualTo("http://aa.bb.com")
-      catsApiListing.consumes must beEqualTo(List.empty)
-      catsApiListing.description must beEqualTo(Some("play with cats"))
-      catsApiListing.models must beSome
-      catsApiListing.models.get.toList.length must beEqualTo(1)
-      catsApiListing.models.get.get("Cat") must beSome
-      val catModel = catsApiListing.models.get.get("Cat").get
-      catModel.baseModel must beNone
-      catModel.description must beNone
-      catModel.discriminator must beNone
-      catModel.id must beEqualTo("Cat")
-      catModel.name must beEqualTo("Cat")
+      val pathDoc = swagger.get.getPaths.get("/document/{settlementId}/files/{fileId}/accept")
+      pathDoc.getOperations.size must beEqualTo(1)
 
-      catModel.properties.toList.length must beEqualTo(2)
-      // todo - look inside properties
+      val opDocPost = pathDoc.getOperationMap.get(HttpMethod.POST)
+      opDocPost.getOperationId must beEqualTo("acceptsettlementfile")
+      opDocPost.getParameters.size() must beEqualTo(3)
+      opDocPost.getParameters.get(0).getDescription must beEqualTo("Id of the settlement to accept a file on.")
+      opDocPost.getParameters.get(1).getDescription must beEqualTo("File id of the file to accept.")
 
-      catModel.qualifiedType must beEqualTo("test.testdata.Cat")
-      catModel.subTypes must beEqualTo(List.empty)
+      val pathSearch = swagger.get.getPaths.get("/search")
+      pathSearch.getOperations.size must beEqualTo(1)
 
-      catsApiListing.position must beEqualTo(0)
-      catsApiListing.produces must beEqualTo(List("application/json"))
-      catsApiListing.protocols must beEqualTo(List.empty)
-      catsApiListing.resourcePath must beEqualTo("/apitest/cats")
-      catsApiListing.swaggerVersion must beEqualTo("1.2")
+      val opSearchGet = pathSearch.getOperationMap.get(HttpMethod.GET)
+      opSearchGet.getParameters.size() must beEqualTo(3)
+      opSearchGet.getDescription must beEqualTo("Search for a settlement with personal number and property id.")
+      opSearchGet.getParameters.get(0).getDescription must beEqualTo("A personal number of one of the sellers.")
+      opSearchGet.getParameters.get(1).getDescription must beEqualTo("The cadastre or share id.")
 
-      listingMap.get("/apitest/dogs") must beSome
-      val dogsApiListing = listingMap.get("/apitest/dogs").get
+      val pathPOI = swagger.get.getPaths.get("/pointsofinterest")
+      pathPOI.getOperations.size must beEqualTo(1)
 
-      dogsApiListing.apis.length must beEqualTo(1)
-      dogsApiListing.apis.head.description must beNone
-      dogsApiListing.apis.head.path must beEqualTo("/api/dog") // do we use this?
-      dogsApiListing.apis.head.operations.length must beEqualTo(2)
-      // todo - look inside operations
+      val opPOIGet = pathPOI.getOperationMap.get(HttpMethod.GET)
+      opPOIGet.getParameters.size() must beEqualTo(5)
+      opPOIGet.getDescription must beEqualTo("Returns points of interest")
+      opPOIGet.getParameters.get(0).getDescription must beEqualTo("Minimum easting for provided extent")
+      opPOIGet.getParameters.get(1).getDescription must beEqualTo("Minimum northing for provided extent")
+      opPOIGet.getParameters.get(2).getDescription must beEqualTo("Maximum easting for provided extent")
+      opPOIGet.getParameters.get(3).getDescription must beEqualTo("Maximum northing for provided extent")
 
-      dogsApiListing.apiVersion must beEqualTo("test1")
-      dogsApiListing.authorizations must beEqualTo(List.empty)
-      dogsApiListing.basePath must beEqualTo("http://aa.bb.com")
-      dogsApiListing.consumes must beEqualTo(List("application/json","application/xml"))
-      dogsApiListing.description must beEqualTo(Some("look after the dogs"))
-      dogsApiListing.models must beSome
-      dogsApiListing.models.get.toList.length must beEqualTo(1)
-      dogsApiListing.models.get.get("Dog") must beSome
-      val dogModel = dogsApiListing.models.get.get("Dog").get
-      dogModel.baseModel must beNone
-      dogModel.description must beNone
-      dogModel.discriminator must beNone
-      dogModel.id must beEqualTo("Dog")
-      dogModel.name must beEqualTo("Dog")
+      val pathCat = swagger.get.getPaths.get("/cat")
+      pathCat.getOperations.size must beEqualTo(2)
 
-      dogModel.properties.toList.length must beEqualTo(2)
-      // todo - look inside properties
+      val opCatGet = pathCat.getOperationMap.get(HttpMethod.GET)
+      opCatGet.getOperationId must beEqualTo("listCats")
+      opCatGet.getParameters must beEmpty
+      opCatGet.getConsumes must beNull
+      opCatGet.getResponses.get("200").getSchema.asInstanceOf[ArrayProperty].getItems.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("Cat")
+      opCatGet.getProduces must beNull
 
-      dogModel.qualifiedType must beEqualTo("test.testdata.Dog")
-      dogModel.subTypes must beEqualTo(List.empty)
+      val opCatPut = pathCat.getOperationMap.get(HttpMethod.PUT)
+      opCatPut.getOperationId must beEqualTo("add1")
+      opCatPut.getParameters.head.getName must beEqualTo("cat")
+      opCatPut.getParameters.head.getIn must beEqualTo("body")
+      opCatPut.getParameters.head.asInstanceOf[BodyParameter].getSchema.getReference must beEqualTo("#/definitions/Cat")
+      opCatPut.getConsumes must beNull
+      opCatPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
+      opCatPut.getProduces must beNull
 
-      dogsApiListing.position must beEqualTo(0)
-      dogsApiListing.produces must beEqualTo(List("application/json", "application/xml"))
-      dogsApiListing.protocols must beEqualTo(List("http", "https"))
-      dogsApiListing.resourcePath must beEqualTo("/apitest/dogs")
-      dogsApiListing.swaggerVersion must beEqualTo("1.2")
+      val pathCat43 = swagger.get.getPaths.get("/cat43")
+      pathCat43.getOperations.size must beEqualTo(1)
 
-      /*
-      listingMap.map {
-        case (key, apiListing) =>
-          println("key: %s".format(key))
-          println("apis: %s".format(apiListing.apis))
-          println("apiVersion: %s".format(apiListing.apiVersion))
-          println("authorizations: %s".format(apiListing.authorizations))
-          println("basePath: %s".format(apiListing.basePath))
-          println("consumes: %s".format(apiListing.consumes))
-          println("description: %s".format(apiListing.description))
+      val opCatGet43 = pathCat43.getOperationMap.get(HttpMethod.GET)
+      opCatGet43.getOperationId must beEqualTo("test issue #43_nick")
+      opCatGet43.getResponses.get("200").getSchema.asInstanceOf[ArrayProperty].getItems.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("Cat")
 
-          println("models: %s".format(apiListing.models))
-          println("position: %s".format(apiListing.position))
-          println("produces: %s".format(apiListing.produces))
-          println("protocols: %s".format(apiListing.protocols))
+      opCatGet43.getParameters.head.getName must beEqualTo("test_issue_43_param")
+      opCatGet43.getParameters.head.getIn must beEqualTo("query")
+      opCatGet43.getParameters.head.asInstanceOf[QueryParameter].getType must beEqualTo("integer")
 
-          println("resourcePath: %s".format(apiListing.resourcePath))
-          println("swaggerVersion: %s".format(apiListing.swaggerVersion))
-          println("====================")
-      }
-      */
+      opCatGet43.getParameters.get(1).getName must beEqualTo("test_issue_43_implicit_param")
+      opCatGet43.getParameters.get(1).getIn must beEqualTo("query")
+      opCatGet43.getParameters.get(1).asInstanceOf[QueryParameter].getType must beEqualTo("integer")
 
+      val pathDog = swagger.get.getPaths.get("/dog")
+      pathDog.getOperations.size must beEqualTo(2)
+
+      val opDogGet = pathDog.getOperationMap.get(HttpMethod.GET)
+      opDogGet.getOperationId must beEqualTo("listDogs")
+      opDogGet.getParameters must beEmpty
+      opDogGet.getConsumes.asScala.toList must beEqualTo(List("application/json","application/xml"))
+      opDogGet.getResponses.get("200").getSchema.asInstanceOf[ArrayProperty].getItems.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("Dog")
+      opDogGet.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
+
+      val opDogPut = pathDog.getOperationMap.get(HttpMethod.PUT)
+      opDogPut.getOperationId must beEqualTo("add1")
+      opDogPut.getParameters.head.getName must beEqualTo("dog")
+      opDogPut.getParameters.head.getIn must beEqualTo("body")
+      opDogPut.getParameters.head.asInstanceOf[BodyParameter].getSchema.getReference must beEqualTo("#/definitions/Dog")
+      opDogPut.getConsumes.asScala.toList must beEqualTo(List("application/json","application/xml"))
+      opDogPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
+      opDogPut.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
+
+      val pathDogParam = swagger.get.getPaths.get("/dog/{id}")
+      pathDogParam.getOperations.size must beEqualTo(1)
+
+      val opDogParamPut = pathDogParam.getOperationMap.get(HttpMethod.PUT)
+      opDogParamPut.getOperationId must beEqualTo("add0")
+      opDogParamPut.getParameters.head.getName must beEqualTo("id")
+      opDogParamPut.getParameters.head.getIn must beEqualTo("path")
+      opDogParamPut.getParameters.head.asInstanceOf[PathParameter].getType must beEqualTo("string")
+      opDogParamPut.getConsumes.asScala.toList must beEqualTo(List("application/json","application/xml"))
+      opDogParamPut.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
+      opDogParamPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
+
+      val catDef = swagger.get.getDefinitions.get("Cat").asInstanceOf[ModelImpl]
+      catDef.getType must beEqualTo("object")
+      catDef.getProperties.containsKey("id") must beTrue
+      catDef.getProperties.containsKey("name") must beTrue
+
+      val dogDef = swagger.get.getDefinitions.get("Dog").asInstanceOf[ModelImpl]
+      dogDef.getType must beEqualTo("object")
+      dogDef.getProperties.containsKey("id") must beTrue
+      dogDef.getProperties.containsKey("name") must beTrue
     }
   }
 
+  def toJsonString(data: Any): String = {
+    if (data.getClass.equals(classOf[String])) {
+      data.asInstanceOf[String]
+    } else {
+      Json.pretty(data.asInstanceOf[AnyRef])
+    }
+  }
 }

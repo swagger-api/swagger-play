@@ -14,17 +14,24 @@ Please see the project [Root Folder](https://github.com/swagger-api/swagger-play
 
 Scala Versions | Play Version | Swagger Version | swagger-play version
 ---------------|--------------|-----------------|---------------------
-2.8.1          | 1.2.x        | 1.2             | 0.1
-2.9.1, 2.10.4  | 2.1.x        | 1.2             | 1.3.5
-2.9.1, 2.10.4  | 2.2.x        | 1.2             | 1.3.7
+2.11.6, 2.11.7 | 2.4.x        | 2.0             | 1.5.0
 2.10.4, 2.11.1 | 2.3.x        | 1.2             | 1.3.12
-2.11.6, 2.11.7 | 2.4.x        | 1.2             | 1.3.13
+2.9.1, 2.10.4  | 2.2.x        | 1.2             | 1.3.7
+2.9.1, 2.10.4  | 2.1.x        | 1.2             | 1.3.5
+2.8.1          | 1.2.x        | 1.2             | 0.1
+
+Other Swagger-Play integrations
+-------
+This Swagger-Play integration allows you to use [Swagger annotations](https://github.com/swagger-api/swagger-core/wiki/Annotations-1.5.X) on your Play actions to generate a Swagger spec at runtime. The libraries below take different approaches to creating an integration.
+
+* [iheartradio/play-swagger](https://github.com/iheartradio/play-swagger) - Write a Swagger spec in your routes file
+* [zalando/api-first-hand](https://github.com/zalando/api-first-hand) - Generate Play code from a Swagger spec
 
 
 License
 -------
 
-Copyright 2011-2015 SmartBear Software
+Copyright 2011-2016 SmartBear Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,3 +43,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+---
+<img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>
