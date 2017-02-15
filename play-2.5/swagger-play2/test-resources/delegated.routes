@@ -1,0 +1,4 @@
+->  /subdelegated     subdelegated.Routes
+
+GET    /my/action        testdata.DelegatedController.list
+GET    /all              testdata.DelegatedController.list2

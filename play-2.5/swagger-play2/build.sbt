@@ -76,3 +76,6 @@ pomExtra := {
 }
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
+resourceDirectory in Test := baseDirectory.value / "test-resources"
+parallelExecution in Test := false
