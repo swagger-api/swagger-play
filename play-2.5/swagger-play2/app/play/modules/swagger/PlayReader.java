@@ -365,15 +365,6 @@ public class PlayReader {
         }
     }
 
-    private Type getDataType(final ApiImplicitParam param, Class<?> cls, String typeString) {
-        Type type = null;
-        // Swagger ReflectionUtils can't handle file or array datatype
-        if (!"".equalsIgnoreCase(typeString) && !"file".equalsIgnoreCase(typeString) && !"array".equalsIgnoreCase(typeString)){
-            type = typeFromString(typeString, cls);
-        }
-        return type;
-    }
-
     protected io.swagger.models.parameters.Parameter readImplicitParam(ApiImplicitParam param, Class<?> cls) {
         final Parameter p;
         if (param.paramType().equalsIgnoreCase("path")) {
@@ -391,7 +382,12 @@ public class PlayReader {
             return null;
         }
 
-        Type type = getDataType(param, cls, param.dataType().equals("") ? param.dataTypeClass().getCanonicalName() : param.dataType());
+        Type type = null;
+        if (!"".equalsIgnoreCase(param.dataType()) && !"file".equalsIgnoreCase(param.dataType()) && !"array".equalsIgnoreCase(param.dataType())){
+            type = typeFromString(param.dataType(), cls);
+        } else if (param.dataTypeClass() != null && !isVoid(param.dataTypeClass())) {
+            type = param.dataTypeClass();
+        }
 
         Parameter result =  ParameterProcessor.applyAnnotations(getSwagger(), p, type == null ? String.class : type, Collections.singletonList(param));
 
