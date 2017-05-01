@@ -22,7 +22,7 @@ POST /api/document/:settlementId/files/:fileId/accept testdata.DocumentControlle
 GET /api/search testdata.SettlementsSearcherController.search(personalNumber:String,propertyId:String)
 GET /api/pointsofinterest testdata.PointOfInterestController.list(eastingMin:Double,northingMin:Double,eastingMax:Double,northingMax:Double)
 GET /api/dog testdata.DogController.list
-PUT /api/dog testdata.DogController.add1
+PUT /api/dog testdata.DogController.add4
 GET /api/cat @testdata.CatController.list
 GET /api/cat43 @testdata.CatController.testIssue43(test_issue_43_param: Option[Int])
 PUT /api/cat @testdata.CatController.add1
@@ -162,7 +162,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
       opDogGet.getProduces.asScala.toList must beEqualTo(List("application/json","application/xml"))
 
       val opDogPut = pathDog.getOperationMap.get(HttpMethod.PUT)
-      opDogPut.getOperationId must beEqualTo("add1")
+      opDogPut.getOperationId must beEqualTo("add4")
       opDogPut.getParameters.head.getName must beEqualTo("dog")
       opDogPut.getParameters.head.getIn must beEqualTo("body")
       opDogPut.getParameters.head.asInstanceOf[BodyParameter].getSchema.getReference must beEqualTo("#/definitions/Dog")

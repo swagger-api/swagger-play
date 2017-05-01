@@ -75,6 +75,15 @@ object DogController extends Controller {
     request => Ok("test case")
   }
 
+  @ApiResponses(Array(
+    new ApiResponse(code = 405, message = "Invalid input"),
+    new ApiResponse(code = 666, message = "Big Problem")))
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "dog", value = "Dog object to add", required = true, dataTypeClass = classOf[testdata.Dog], paramType = "body")))
+  def add4 = Action {
+    request => Ok("test case")
+  }
+
   @ApiOperation(value = "Updates a new Dog",
     notes = "Updates dogs nicely",
     httpMethod = "POST")
