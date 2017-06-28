@@ -1,6 +1,6 @@
 package testdata
 
-import com.avaje.ebean.Model
+import io.ebean.Model
 
 class Person extends Model {
   var name: String = _

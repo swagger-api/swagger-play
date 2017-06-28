@@ -17,6 +17,7 @@
 package controllers
 
 import java.io.StringWriter
+import javax.inject.Inject
 import javax.xml.bind.annotation._
 
 import akka.stream.scaladsl.Source
@@ -26,7 +27,7 @@ import io.swagger.core.filter.SpecFilter
 import io.swagger.models.Swagger
 import io.swagger.util.Json
 import play.api.Logger
-import play.api.http.HttpEntity
+import play.api.http.{HeaderNames, HttpEntity}
 import play.api.mvc._
 import play.modules.swagger.ApiListingCache
 
@@ -65,7 +66,8 @@ class ErrorResponse(@XmlElement var code: Int, @XmlElement var message: String) 
   def setMessage(message: String) = this.message = message
 }
 
-class ApiHelpController extends SwaggerBaseApiController {
+class ApiHelpController @Inject() (components: ControllerComponents)
+  extends AbstractController(components) with SwaggerBaseApiController {
 
   def getResources = Action {
     request =>
@@ -102,7 +104,7 @@ class ApiHelpController extends SwaggerBaseApiController {
   }
 }
 
-class SwaggerBaseApiController extends Controller {
+trait SwaggerBaseApiController {
 
   protected def returnXml(request: Request[_]) = request.path.contains(".xml")
 
@@ -179,7 +181,7 @@ class SwaggerBaseApiController extends Controller {
 
   protected def XmlResponse(data: Any) = {
     val xmlValue = toXmlString(data)
-    Ok.chunked(Source.single(xmlValue.getBytes("UTF-8"))).as("application/xml")
+    Results.Ok.chunked(Source.single(xmlValue.getBytes("UTF-8"))).as("application/xml")
   }
 
   protected def returnValue(request: Request[_], obj: Any): Result = {
@@ -202,7 +204,7 @@ class SwaggerBaseApiController extends Controller {
     val jsonBytes = toJsonString(data).getBytes("UTF-8")
     val source = Source.single(jsonBytes).map(ByteString.apply)
     Result (
-      header = ResponseHeader(200, Map(CONTENT_LENGTH -> jsonBytes.length.toString)),
+      header = ResponseHeader(200, Map(HeaderNames.CONTENT_LENGTH -> jsonBytes.length.toString)),
       body = HttpEntity.Streamed(source, None, None)
     ).as ("application/json")
   }
