@@ -66,13 +66,13 @@ class ErrorResponse(@XmlElement var code: Int, @XmlElement var message: String) 
   def setMessage(message: String) = this.message = message
 }
 
-class ApiHelpController @Inject() (components: ControllerComponents)
+class ApiHelpController @Inject() (components: ControllerComponents, configuration: play.api.Configuration)
   extends AbstractController(components) with SwaggerBaseApiController {
 
   def getResources = Action {
     request =>
       implicit val requestHeader: RequestHeader = request
-      val host: String = requestHeader.host
+      val host: String = if (configuration.underlying.hasPath("swagger.api.host")) configuration.underlying.getString("swagger.api.host") else requestHeader.host
       val resourceListing: Swagger = getResourceListing(host)
       val response: String = returnXml(request) match {
         case true => toXmlString(resourceListing)
@@ -84,7 +84,7 @@ class ApiHelpController @Inject() (components: ControllerComponents)
   def getResource(path: String) = Action {
     request =>
       implicit val requestHeader: RequestHeader = request
-      val host: String = requestHeader.host
+      val host: String = if (configuration.underlying.hasPath("swagger.api.host")) configuration.underlying.getString("swagger.api.host") else requestHeader.host
       val apiListing: Swagger = getApiListing(path, host)
       val response: String = returnXml(request) match {
         case true => toXmlString(apiListing)
