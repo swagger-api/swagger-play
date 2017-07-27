@@ -19,6 +19,9 @@ script:
   - cd ../..
   - cd play-2.5/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
   - find $HOME/.sbt -name "*.lock" | xargs rm
+  - cd ../..
+  - cd play-2.6/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
 
 jdk:
   - oraclejdk8
