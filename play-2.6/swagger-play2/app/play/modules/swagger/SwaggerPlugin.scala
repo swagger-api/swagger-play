@@ -29,6 +29,7 @@ import scala.collection.JavaConversions._
 import play.routes.compiler.{Route => PlayRoute, Include => PlayInclude, RoutesFileParser, StaticPart}
 
 import scala.io.Source
+import scala.util.control.NonFatal
 
 trait SwaggerPlugin
 
@@ -116,10 +117,10 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       }
     }
     //Parses multiple route files recursively
-    def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
+    def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = try {
       logger.debug(s"Processing route file '$routesFile' with prefix '$prefix'")
 
-      val routesContent =  Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
+      val routesContent = Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
       val parsedRoutes = RoutesFileParser.parseContent(routesContent,new File(routesFile))
       val routes = parsedRoutes.right.get.collect {
         case (route: PlayRoute) => {
@@ -133,7 +134,12 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       }.flatten
       logger.debug(s"Finished processing route file '$routesFile'")
       routes
+    } catch {
+      case NonFatal(e) =>
+        logger.debug(s"Unable to parse routes from $routesFile", e)
+        Nil
     }
+    
     parseRoutesHelper(routesFile, "")
   }
 
