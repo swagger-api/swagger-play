@@ -28,7 +28,6 @@ This Swagger-Play integration allows you to use [Swagger annotations](https://gi
 * [iheartradio/play-swagger](https://github.com/iheartradio/play-swagger) - Write a Swagger spec in your routes file
 * [zalando/api-first-hand](https://github.com/zalando/api-first-hand) - Generate Play code from a Swagger spec
 
-
 License
 -------
 
