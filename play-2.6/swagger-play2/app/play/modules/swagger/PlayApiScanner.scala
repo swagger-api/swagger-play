@@ -19,22 +19,22 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
   private def updateInfoFromConfig(swagger: Swagger): Swagger = {
 
-    var info = new Info()
+    val info = new Info()
     val playSwaggerConfig = PlayConfigFactory.getConfig
 
     if (StringUtils.isNotBlank(playSwaggerConfig.description)) {
-      info.description(playSwaggerConfig.description);
+      info.description(playSwaggerConfig.description)
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.title)) {
-      info.title(playSwaggerConfig.title);
+      info.title(playSwaggerConfig.title)
     } else {
       // title tag needs to be present to validate against schema
-      info.title("");
+      info.title("")
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.version)) {
-      info.version(playSwaggerConfig.version);
+      info.version(playSwaggerConfig.version)
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.termsOfServiceUrl)) {
@@ -43,12 +43,12 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
     if (playSwaggerConfig.contact != null) {
       info.contact(new Contact()
-        .name(playSwaggerConfig.contact));
+        .name(playSwaggerConfig.contact))
     }
     if (playSwaggerConfig.license != null && playSwaggerConfig.licenseUrl != null) {
       info.license(new License()
         .name(playSwaggerConfig.license)
-        .url(playSwaggerConfig.licenseUrl));
+        .url(playSwaggerConfig.licenseUrl))
     }
     swagger.info(info)
   }
@@ -60,7 +60,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     }
     updateInfoFromConfig(swagger)
     swagger.host(playSwaggerConfig.host)
-    swagger.basePath(playSwaggerConfig.basePath);
+    swagger.basePath(playSwaggerConfig.basePath)
 
   }
 
@@ -72,7 +72,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     Logger("swagger").info("ControllerScanner - looking for controllers with API annotation")
 
 
-    var routes = RouteFactory.getRoute().getAll().toList
+    val routes = RouteFactory.getRoute().getAll().toList
 
     // get controller names from application routes
     val controllers = routes.map { case (_, route) =>
@@ -80,7 +80,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     }.distinct
 
 
-    var list = controllers.collect {
+    val list = controllers.collect {
       case className: String if {
         try {
           SwaggerContext.loadClass(className).getAnnotation(classOf[Api]) != null
@@ -100,7 +100,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
   }
 
   override def getPrettyPrint(): Boolean = {
-    true;
+    true
   }
 
   override def setPrettyPrint(x: Boolean) {}
