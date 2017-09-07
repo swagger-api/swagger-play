@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/rayyildiz/swagger-play.svg?branch=master)](https://travis-ci.org/rayyildiz/swagger-play)
-
 # Swagger Play2 Module
+
+[![Build Status](https://travis-ci.org/swagger-api/swagger-play.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-play)
+
 
 ## Overview
 This is a module to support the play2 framework from [playframework](http://www.playframework.org).  It is written in scala but can be used with either java or scala-based play2 applications.
