@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
-=======
 name := "swagger-play2"
 version := "1.5.4-SNAPSHOT"
 
@@ -78,4 +75,3 @@ pomExtra := {
 }
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
->>>>>>> upstream/master
