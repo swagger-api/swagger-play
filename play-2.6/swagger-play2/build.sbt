@@ -1,19 +1,19 @@
 name := "swagger-play2"
-version := "1.5.4-SNAPSHOT"
+version := "1.6.1-SNAPSHOT"
 
 checksums in update := Nil
 
 scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.10.6", "scalaVersion.value", "2.12.1")
+crossScalaVersions := Seq(scalaVersion.value, "2.12.2")
 
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.6",
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.9",
   "org.slf4j"          % "slf4j-api"                  % "1.7.21",
-  "io.swagger"         % "swagger-core"               % "1.5.12",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.3",
-  "com.typesafe.play" %% "routes-compiler"            % "2.5.4",
-  "com.typesafe.play" %% "play-ebean"                 % "2.0.0"            % "test",
+  "io.swagger"         % "swagger-core"               % "1.5.16",
+  "io.swagger"        %% "swagger-scala-module"       % "1.0.5-SNAPSHOT",
+  "com.typesafe.play" %% "routes-compiler"            % "2.6.0",
+  "com.typesafe.play" %% "play-ebean"                 % "4.0.2"            % "test",
   "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
   "org.specs2"        %% "specs2-mock"                % "3.8.7"            % "test",
   "org.specs2"        %% "specs2-junit"               % "3.8.7"            % "test",
@@ -33,6 +33,7 @@ publishMavenStyle := true
 pomIncludeRepository := { x => false }
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 organization := "io.swagger"
+resolvers += Resolver.sonatypeRepo("snapshots")
 pomExtra := {
   <url>http://swagger.io</url>
   <licenses>
