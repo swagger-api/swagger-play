@@ -7,6 +7,8 @@ This is a module to support the play2 framework from [playframework](http://www.
 
 ## Version History
 
+* swagger-play2 1.5.3 supports play 2.5 and swagger 2.0.  
+
 * swagger-play2 1.5.1 supports play 2.4 and swagger 2.0.  If you need swagger 1.2 support, use 1.3.13. If you need 2.2 support, use 1.3.7 or earlier.
 
 * swagger-play2 1.3.13 supports play 2.4.  If you need 2.2 support, use 1.3.7 or earlier.
