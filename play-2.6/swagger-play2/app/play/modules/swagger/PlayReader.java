@@ -8,6 +8,7 @@ import io.swagger.models.*;
 import io.swagger.models.Contact;
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Tag;
+import io.swagger.models.auth.In;
 import io.swagger.models.parameters.*;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
@@ -287,6 +288,17 @@ public class PlayReader {
 
                 swagger.addTag(tag);
             }
+        }
+
+
+        for(ApiKeyAuthDefinition apiKeyAuthConfig:config.securityDefinition().apiKeyAuthDefintions()){
+            io.swagger.models.auth.ApiKeyAuthDefinition apiKeyAuthDefinition = new io.swagger.models.auth.ApiKeyAuthDefinition();
+
+            apiKeyAuthDefinition.setName(apiKeyAuthConfig.name());
+            apiKeyAuthDefinition.setIn(In.forValue(apiKeyAuthConfig.in().toValue()));
+            apiKeyAuthDefinition.setDescription(apiKeyAuthConfig.description());
+
+            swagger.addSecurityDefinition(apiKeyAuthConfig.key(), apiKeyAuthDefinition);
         }
 
         for (SwaggerDefinition.Scheme scheme : config.schemes()) {

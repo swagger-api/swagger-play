@@ -1,9 +1,9 @@
 name := "swagger-play2"
-version := "1.6.1-SNAPSHOT"
+version := "1.6.2-SNAPSHOT"
 
 checksums in update := Nil
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
 
 crossScalaVersions := Seq(scalaVersion.value, "2.12.2")
 

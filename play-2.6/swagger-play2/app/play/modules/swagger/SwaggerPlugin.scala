@@ -39,45 +39,45 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   val config = app.configuration
   logger.info("Swagger - starting initialisation...")
 
-  val apiVersion = config.getString("api.version") match {
+  val apiVersion = config.getOptional[String]("api.version") match {
     case None => "beta"
     case Some(value) => value
   }
 
-  val basePath = config.getString("swagger.api.basepath")
+  val basePath = config.getOptional[String]("swagger.api.basepath")
     .filter(path => !path.isEmpty)
     .getOrElse("/")
 
-  val host = config.getString("swagger.api.host")
+  val host = config.getOptional[String]("swagger.api.host")
     .filter(host => !host.isEmpty)
     .getOrElse("localhost:9000")
 
-  val title = config.getString("swagger.api.info.title") match {
+  val title = config.getOptional[String]("swagger.api.info.title") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val description = config.getString("swagger.api.info.description") match {
+  val description = config.getOptional[String]("swagger.api.info.description") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val termsOfServiceUrl = config.getString("swagger.api.info.termsOfServiceUrl") match {
+  val termsOfServiceUrl = config.getOptional[String]("swagger.api.info.termsOfServiceUrl") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val contact = config.getString("swagger.api.info.contact") match {
+  val contact = config.getOptional[String]("swagger.api.info.contact") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val license = config.getString("swagger.api.info.license") match {
+  val license = config.getOptional[String]("swagger.api.info.license") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val licenseUrl = config.getString("swagger.api.info.licenseUrl") match {
+  val licenseUrl = config.getOptional[String]("swagger.api.info.licenseUrl") match {
     // licenceUrl needs to be a valid URL to validate against schema
     case None => "http://licenseUrl"
     case Some(value)=> value
@@ -110,7 +110,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
     val routesFile = config.underlying.hasPath("play.http.router") match {
       case false => "routes"
-      case true => config.getString("play.http.router") match {
+      case true => config.getOptional[String]("play.http.router") match {
         case None => "routes"
         case Some(value)=> playRoutesClassNameToFileName(value)
       }
@@ -147,7 +147,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   val route = new RouteWrapper(routesRules)
   RouteFactory.setRoute(route)
-  app.configuration.getString("swagger.filter") match {
+  app.configuration.getOptional[String]("swagger.filter") match {
     case Some(e) if (e != "") => {
       try {
         FilterFactory setFilter SwaggerContext.loadClass(e).newInstance.asInstanceOf[SwaggerSpecFilter]
