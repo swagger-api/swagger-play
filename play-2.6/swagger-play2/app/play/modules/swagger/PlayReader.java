@@ -227,9 +227,18 @@ public class PlayReader {
                 }
             }
         }
+        StringBuilder basePathFilter = new StringBuilder(basePath);
+        if (basePath.startsWith("/")) basePathFilter.deleteCharAt(0);
+        if (!basePath.endsWith("/")) basePathFilter.append("/");
+        String basePathString = basePathFilter.toString();
+
+        String pathPatternString = sb.toString();
         StringBuilder operationPath = new StringBuilder();
-        if (basePath.startsWith("/")) basePath = basePath.substring(1);
-        operationPath.append(sb.toString().replaceFirst(basePath, ""));
+        if ((pathPatternString.startsWith("/") && pathPatternString.startsWith(basePathString, 1)) ||
+                (pathPatternString.startsWith(basePathString)))
+            operationPath.append(pathPatternString.replaceFirst(basePathString, ""));
+        else
+            operationPath.append(pathPatternString);
         if (!operationPath.toString().startsWith("/")) operationPath.insert(0, "/");
         return operationPath.toString();
     }
