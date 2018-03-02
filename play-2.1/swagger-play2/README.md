@@ -1,5 +1,6 @@
 # Swagger Play2 Module
 
+
 ## Overview
 This is a module to support the play2 framework from [playframework](http://www.playframework.org).  It is written in scala but can be used with either java or scala-based play2 applications.
 

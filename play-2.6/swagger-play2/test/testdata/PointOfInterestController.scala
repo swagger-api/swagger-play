@@ -1,11 +1,13 @@
 package testdata
 
+import javax.inject.Inject
+
 import io.swagger.annotations._
-import play.api.mvc.Controller
-import play.mvc.{Result, Http}
+import play.api.mvc.{InjectedController}
+import play.mvc.{Http, Result}
 
 @Api(value = "/apitest/pointsofinterest", description = "Points of interest")
-class PointOfInterestController extends Controller {
+class PointOfInterestController  @Inject() () extends InjectedController {
 
   @ApiOperation(value = "Get points of interest",
     notes = "Returns points of interest",

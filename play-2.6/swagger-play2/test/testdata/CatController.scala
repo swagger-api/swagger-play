@@ -1,11 +1,12 @@
 package testdata
 
-import io.swagger.annotations._
+import javax.inject.Inject
 
-import play.api.mvc.{Action, Controller}
+import io.swagger.annotations._
+import play.api.mvc._
 
 @Api(value = "/apitest/cats", description = "play with cats")
-class CatController extends Controller {
+class CatController @Inject() () extends InjectedController {
 
   @ApiOperation(value = "addCat1",
       httpMethod = "PUT",

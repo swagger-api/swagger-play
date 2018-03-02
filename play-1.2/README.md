@@ -1,5 +1,6 @@
 # Swagger Play 1.2.x Framework Module
 
+
 **NOTE!  This repository is available for historical reasons and the project is no longer supported**
 
 ## Overview
