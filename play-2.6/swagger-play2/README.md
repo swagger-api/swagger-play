@@ -122,6 +122,74 @@ swagger.api.info = {
   licenseUrl : (String) - Terms Of Service | default : empty
 }
 ```
+## Rendering SecurityDefinition
+
+To render SecurityDefinition you need to add *SecurityDefinition* in *SwaggerDefinition* and *Authorization* to method that will require Authorization
+```
+@Singleton
+@Api(value = "Customer")
+@SwaggerDefinition(
+  securityDefinition = new SecurityDefinition(
+    apiKeyAuthDefintions = Array(
+      new ApiKeyAuthDefinition(
+        name = "Authorization",
+        key = "Bearer",
+        in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER,
+        description="For Accessing the API must provide a valid JWT Token ")
+    )
+  )
+)
+class CustomerController @Inject() (val controllerComponents: ControllerComponents) extends BaseController  {
+
+
+  @ApiOperation(value = "get All Customers",
+    nickname = "getAllCustomers",
+    notes = "Retuns a list of Customer",
+    response = classOf[Customer],
+    responseContainer = "List",
+    httpMethod = "GET",
+    authorizations = Array(
+      new Authorization("Bearer")
+    )
+  )
+```
+By annotating coding as shown above swagger.json will contains necessary elementos to be used with swagger-ui
+```
+    "/customers" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "get All Customers",
+        "description" : "Retuns a list of Customer",
+        "operationId" : "getAllCustomers",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Customer"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "Bearer" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "Bearer" : {
+      "description" : "For Accessing the API must provide a valid JWT Token ",
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header"
+    }
+  },
+```
+
+A great explanation about *Use Authorization Header with Swagger* can be found here http://www.mimiz.fr/blog/use-authorization-header-with-swagger/
 
 ## Note on Dependency Injection
 This plugin works by default if your application uses Runtime dependency injection.
