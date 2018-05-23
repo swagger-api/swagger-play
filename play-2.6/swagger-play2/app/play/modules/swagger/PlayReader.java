@@ -396,6 +396,9 @@ public class PlayReader {
             type = typeFromString(param.dataType(), cls);
 
         }
+        if(param.dataTypeClass() != Void.class) {
+            type = param.dataTypeClass();
+        }
         Parameter result =  ParameterProcessor.applyAnnotations(getSwagger(), p, type == null ? String.class : type, Collections.singletonList(param));
 
         if (result instanceof AbstractSerializableParameter && type != null) {
