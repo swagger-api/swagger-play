@@ -8,6 +8,7 @@ import io.swagger.models.*;
 import io.swagger.models.Contact;
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Tag;
+import io.swagger.models.auth.In;
 import io.swagger.models.parameters.*;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
@@ -296,6 +297,17 @@ public class PlayReader {
 
                 swagger.addTag(tag);
             }
+        }
+
+        for(OAuth2Definition oAuth2DefinitionConfig:config.securityDefinition().oAuth2Definitions()){
+            io.swagger.models.auth.OAuth2Definition oAuth2Definition = new io.swagger.models.auth.OAuth2Definition();
+            oAuth2Definition.setTokenUrl(oAuth2DefinitionConfig.tokenUrl());
+            oAuth2Definition.setAuthorizationUrl(oAuth2DefinitionConfig.authorizationUrl());
+            oAuth2Definition.setFlow(oAuth2DefinitionConfig.flow().name().toLowerCase());
+            for(Scope scope: oAuth2DefinitionConfig.scopes()) {
+                oAuth2Definition.addScope(scope.name(), scope.description());
+            }
+            swagger.addSecurityDefinition(oAuth2DefinitionConfig.key(), oAuth2Definition);
         }
 
         for (SwaggerDefinition.Scheme scheme : config.schemes()) {

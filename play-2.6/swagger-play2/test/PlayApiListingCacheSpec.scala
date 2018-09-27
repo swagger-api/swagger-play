@@ -87,6 +87,7 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
       swagger.get.getInfo.getTitle must beEqualTo(swaggerConfig.getTitle)
       swagger.get.getInfo.getTermsOfService must beEqualTo(swaggerConfig.getTermsOfServiceUrl)
       swagger.get.getInfo.getLicense.getName must beEqualTo(swaggerConfig.getLicense)
+      swagger.get.getSecurityDefinitions.size() must beEqualTo(1)
 
       val pathDoc = swagger.get.getPaths.get("/document/{settlementId}/files/{fileId}/accept")
       pathDoc.getOperations.size must beEqualTo(1)
@@ -135,6 +136,7 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
       opCatPut.getConsumes must beNull
       opCatPut.getResponses.get("200").getSchema.asInstanceOf[RefProperty].getSimpleRef must beEqualTo("ActionAnyContent")
       opCatPut.getProduces must beNull
+      opCatPut.getSecurity.get(0).get("oauth2").get(0) must beEqualTo("write_pets")
 
       val pathCat43 = swagger.get.getPaths.get("/api/cat43")
       pathCat43.getOperations.size must beEqualTo(1)
