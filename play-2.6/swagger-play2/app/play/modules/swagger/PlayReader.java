@@ -430,8 +430,7 @@ public class PlayReader {
         ApiOperation apiOperation = ReflectionUtils.getAnnotation(method, ApiOperation.class);
         ApiResponses responseAnnotation = ReflectionUtils.getAnnotation(method, ApiResponses.class);
 
-        String operationId = method.getName();
-        operation.operationId(operationId);
+        String operationId = null;
         String responseContainer = null;
 
         Type responseType = null;
