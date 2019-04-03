@@ -8,7 +8,7 @@ scalaVersion := "2.11.8"
 crossScalaVersions := Seq(scalaVersion.value, "2.12.2")
 
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.9",
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.9.8",
   "org.slf4j"          % "slf4j-api"                  % "1.7.21",
   "io.swagger"         % "swagger-core"               % "1.5.16",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.5-SNAPSHOT",
