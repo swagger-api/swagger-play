@@ -4,12 +4,28 @@ import io.swagger.annotations._
 
 import play.api.mvc.{Action, Controller}
 
+@SwaggerDefinition(
+  securityDefinition = new SecurityDefinition(
+    apiKeyAuthDefinitions = Array(
+      new ApiKeyAuthDefinition(name= "api_key", key="api_key", in=ApiKeyAuthDefinition.ApiKeyLocation.HEADER)
+    ),
+    oAuth2Definitions = Array(
+      new OAuth2Definition(
+        key = "oauth2",
+        flow = OAuth2Definition.Flow.APPLICATION,
+        tokenUrl= "/oauth/token",
+        authorizationUrl = "/authorize",
+        scopes = Array(new Scope(name = "write_pets", description = "modify pets"))
+      )
+    )
+  )
+)
 @Api(value = "/apitest/cats", description = "play with cats")
 class CatController extends Controller {
 
   @ApiOperation(value = "addCat1",
       httpMethod = "PUT",
-      authorizations = Array(),
+      authorizations = Array(new Authorization(value="api_key")),
       consumes = "",
       protocols = "")
     @ApiImplicitParams(Array(
@@ -46,7 +62,8 @@ class CatController extends Controller {
       notes = "Returns all cats",
       response = classOf[Cat],
       responseContainer = "List",
-      httpMethod = "GET")
+      httpMethod = "GET",
+      authorizations = Array(new Authorization(value="oauth2", scopes = Array(new AuthorizationScope(scope = "write_pets", description = "Modify pets")))))
     @Deprecated
     def list = Action {
       request => Ok("test case")
