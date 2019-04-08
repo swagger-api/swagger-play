@@ -30,7 +30,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "io.swagger" %% "swagger-play2" % "1.6.1"
+  "io.swagger" %% "swagger-play2" % "1.6.2-SNAPSHOT"
 )
 ```
 
