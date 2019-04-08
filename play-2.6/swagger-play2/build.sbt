@@ -1,5 +1,5 @@
 name := "swagger-play2"
-version := "1.6.1"
+version := "1.6.2-SNAPSHOT"
 
 checksums in update := Nil
 
