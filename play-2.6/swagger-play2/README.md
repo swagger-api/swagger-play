@@ -7,7 +7,7 @@ This is a module to support the play2 framework from [playframework](http://www.
 
 ## Version History
 
-* swagger-play2 1.6.1-SNAPSHOT supports play 2.6 and swagger 2.0.
+* swagger-play2 1.6.1 supports play 2.6 and swagger 2.0.
 
 * swagger-play2 1.5.1 supports play 2.4 and swagger 2.0.  If you need swagger 1.2 support, use 1.3.13. If you need 2.2 support, use 1.3.7 or earlier.
 
@@ -30,7 +30,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "io.swagger" %% "swagger-play2" % "1.6.1-SNAPSHOT"
+  "io.swagger" %% "swagger-play2" % "1.6.1"
 )
 ```
 
