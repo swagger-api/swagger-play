@@ -3,15 +3,15 @@ version := "1.6.1-SNAPSHOT"
 
 checksums in update := Nil
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.12"
 
-crossScalaVersions := Seq(scalaVersion.value, "2.12.2")
+crossScalaVersions := Seq(scalaVersion.value, "2.12.6")
 
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.9",
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.9.8",
   "org.slf4j"          % "slf4j-api"                  % "1.7.21",
-  "io.swagger"         % "swagger-core"               % "1.5.16",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.5-SNAPSHOT",
+  "io.swagger"         % "swagger-core"               % "1.5.22",
+  "io.swagger"        %% "swagger-scala-module"       % "1.0.5",
   "com.typesafe.play" %% "routes-compiler"            % "2.6.0",
   "com.typesafe.play" %% "play-ebean"                 % "4.0.2"            % "test",
   "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
@@ -21,13 +21,14 @@ libraryDependencies ++= Seq(
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
 
-publishTo <<= version { (v: String) =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
+publishTo := {
+  if (version.value.trim.endsWith("SNAPSHOT"))
+    Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
   else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    Some("Sonatype Nexus Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
 }
+
+
 publishArtifact in Test := false
 publishMavenStyle := true
 pomIncludeRepository := { x => false }

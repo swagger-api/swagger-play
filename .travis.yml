@@ -11,7 +11,7 @@ cache:
 language: scala
 
 scala:
-  - 2.11.8
+  - 2.11.12
 
 script:
   - cd play-2.4/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
@@ -24,4 +24,4 @@ script:
   - find $HOME/.sbt -name "*.lock" | xargs rm
 
 jdk:
-  - oraclejdk8
+  - openjdk8
