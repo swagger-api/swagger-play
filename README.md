@@ -14,6 +14,7 @@ Please see the project [Root Folder](https://github.com/swagger-api/swagger-play
 
 Scala Versions | Play Version | Swagger Version | swagger-play version
 ---------------|--------------|-----------------|---------------------
+2.11.x, 2.12.x | 2.7.x        | 2.0             | 1.7.0
 2.11.x, 2.12.x | 2.6.x        | 2.0             | 1.6.1
 2.11.x, 2.12.x | 2.6.x        | 2.0             | 1.6.0
 2.11.6, 2.11.7 | 2.4.x, 2.5.x | 2.0             | 1.5.0
