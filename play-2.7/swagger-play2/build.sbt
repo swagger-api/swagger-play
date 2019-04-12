@@ -7,7 +7,7 @@ scalaVersion := "2.12.8"
 
 //scalacOptions ++= Seq("-feature", "-Xfatal-warnings")
 
-crossScalaVersions := Seq(scalaVersion.value, "2.11.12")
+crossScalaVersions := Seq("2.11.12", scalaVersion.value)
 
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.9.8",
