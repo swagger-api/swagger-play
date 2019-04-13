@@ -136,7 +136,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     parseRoutesHelper(routesFile, "")
   }
 
-  val routesRules = routes.map(route => s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}" -> route).toMap
+  val routesRules = routes.map(route => s"${route.call.packageName.map(_ + ".").getOrElse("")}${route.call.controller}$$.${route.call.method}" -> route).toMap
 
   val route = new RouteWrapper(routesRules.asJava)
   RouteFactory.setRoute(route)
