@@ -31,21 +31,22 @@ This Swagger-Play integration allows you to use [Swagger annotations](https://gi
 * [iheartradio/play-swagger](https://github.com/iheartradio/play-swagger) - Write a Swagger spec in your routes file
 * [zalando/api-first-hand](https://github.com/zalando/api-first-hand) - Generate Play code from a Swagger spec
 
-License
--------
+## Security contact
 
-Copyright 2011-2019 SmartBear Software
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
+
+## License
+
+```
+Copyright 2018 SmartBear Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-[apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+You may obtain a copy of the License at [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
----
-<img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>
+```
