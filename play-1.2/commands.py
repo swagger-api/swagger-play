@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Here you can create play commands that are specific to the module, and extend existing commands
 
 MODULE = 'swagger-play'
@@ -13,7 +14,7 @@ def execute(**kargs):
     env = kargs.get("env")
 
     if command == "swagger-play:hello":
-        print "~ Hello"
+        print("~ Hello")
 
 
 # This will be executed before any command (new, run...)
