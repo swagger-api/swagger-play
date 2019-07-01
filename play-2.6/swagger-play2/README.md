@@ -47,11 +47,11 @@ sbt publishLocal
 There are just a couple steps to integrate your Play2 app with swagger.
 
 1\. Add the Swagger module to your `application.conf`
- 
+
 ```
 play.modules.enabled += "play.modules.swagger.SwaggerModule"
 ```
- 
+
 2\. Add the resource listing to your routes file (you can read more about the resource listing [here](https://github.com/swagger-api/swagger-core/wiki/Resource-Listing))
 
 ```
@@ -126,8 +126,11 @@ swagger.api.info = {
 ## Note on Dependency Injection
 This plugin works by default if your application uses Runtime dependency injection.
 
-Nevertheless, a helper is provided `SwaggerApplicationLoader` to ease the use of this plugin with Compile Time Dependency Injection. 
-
+Nevertheless, this can be initialized using compile time dependency injections using the following:
+```
+val swaggerPlugin = new SwaggerPluginImpl(lifecycle, router, app) // Can't be lazy because of PlayApiScanner initialization side effect
+lazy val apiHelpController = new ApiHelpController(components, configuration)
+```
 
 ## License
 
