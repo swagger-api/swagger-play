@@ -29,7 +29,7 @@ class CatController extends Controller {
       consumes = "",
       protocols = "")
     @ApiImplicitParams(Array(
-      new ApiImplicitParam(name = "cat", value = "Cat object to add", required = true, dataType = "testdata.Cat", paramType = "body")))
+      new ApiImplicitParam(name = "cat", value = "Cat object to add", required = true, dataTypeClass = classOf[testdata.Cat], paramType = "body")))
     def add1 = Action {
       request => Ok("test case")
     }
