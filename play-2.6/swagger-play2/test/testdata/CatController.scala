@@ -17,10 +17,21 @@ import play.api.mvc.{Action, Controller}
         authorizationUrl = "/authorize",
         scopes = Array(new Scope(name = "write_pets", description = "modify pets"))
       )
-    )
+    ),
+    basicAuthDefinitions = Array(new BasicAuthDefinition(key = "basic_auth"))
   )
 )
-@Api(value = "/apitest/cats", description = "play with cats")
+@Api(value = "/apitest/cats", description = "play with cats", authorizations = Array (
+  new Authorization(
+    value = "oauth2"
+  ),
+  new Authorization(
+    value = "api_key"
+  ),
+  new Authorization(
+    value = "basic_auth"
+  )
+))
 class CatController extends Controller {
 
   @ApiOperation(value = "addCat1",
@@ -76,7 +87,7 @@ class CatController extends Controller {
   @ApiOperation(value = "test issue #43",
     nickname = "test issue #43_nick",
     notes = "test issue #43_notes",
-    response = classOf[testdata.Cat],
+    response = classOf[Cat],
     responseContainer = "List",
     httpMethod = "GET")
   @ApiImplicitParams(Array(
