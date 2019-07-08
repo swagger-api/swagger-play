@@ -323,7 +323,13 @@ public class PlayReader {
             swagger.addSecurityDefinition(apiKeyAuthConfig.key(), apiKeyAuthDefinition);
         }
 
+        for (BasicAuthDefinition basicAuthConfig:config.securityDefinition().basicAuthDefinitions()) {
 
+            io.swagger.models.auth.BasicAuthDefinition basicAuthDefinition = new io.swagger.models.auth.BasicAuthDefinition();
+            basicAuthDefinition.setDescription(basicAuthConfig.description());
+
+            swagger.addSecurityDefinition(basicAuthConfig.key(), basicAuthDefinition);
+        }
 
         for (SwaggerDefinition.Scheme scheme : config.schemes()) {
             if (scheme != SwaggerDefinition.Scheme.DEFAULT) {

@@ -87,7 +87,7 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
       swagger.get.getInfo.getTitle must beEqualTo(swaggerConfig.getTitle)
       swagger.get.getInfo.getTermsOfService must beEqualTo(swaggerConfig.getTermsOfServiceUrl)
       swagger.get.getInfo.getLicense.getName must beEqualTo(swaggerConfig.getLicense)
-      swagger.get.getSecurityDefinitions.size() must beEqualTo(2)
+      swagger.get.getSecurityDefinitions.size() must beEqualTo(3)
 
       val pathDoc = swagger.get.getPaths.get("/document/{settlementId}/files/{fileId}/accept")
       pathDoc.getOperations.size must beEqualTo(1)
