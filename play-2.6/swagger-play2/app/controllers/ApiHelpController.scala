@@ -204,8 +204,8 @@ trait SwaggerBaseApiController {
     val jsonBytes = toJsonString(data).getBytes("UTF-8")
     val source = Source.single(jsonBytes).map(ByteString.apply)
     Result (
-      header = ResponseHeader(200, Map(HeaderNames.CONTENT_LENGTH -> jsonBytes.length.toString)),
-      body = HttpEntity.Streamed(source, None, None)
-    ).as ("application/json")
+      header = ResponseHeader(200, Map.empty),
+      body = HttpEntity.Streamed(source, Some(jsonBytes.length), Some("application/json"))
+    )
   }
 }
