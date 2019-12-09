@@ -1,42 +1,37 @@
 name := "swagger-play2"
-version := "1.7.1"
+organization := "io.swagger"
 
-checksums in update := Nil
+scalaVersion := "2.13.1"
 
-scalaVersion := "2.12.8"
+crossScalaVersions := Seq(scalaVersion.value, "2.12.10")
 
-//scalacOptions ++= Seq("-feature", "-Xfatal-warnings")
-
-crossScalaVersions := Seq("2.11.12", scalaVersion.value)
+val PlayVersion = "2.7.3"
+val SwaggerVersion = "1.5.24"
+val Specs2Version = "4.6.0"
 
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.9.8",
-  "org.slf4j"          % "slf4j-api"                  % "1.7.21",
-  "io.swagger"         % "swagger-core"               % "1.5.22",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.5",
-  "com.typesafe.play" %% "routes-compiler"            % "2.7.0",
-  "com.typesafe.play" %% "play-ebean"                 % "4.0.2"            % "test",
-  "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
-  "org.specs2"        %% "specs2-mock"                % "3.8.7"            % "test",
-  "org.specs2"        %% "specs2-junit"               % "3.8.7"            % "test",
-  "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
+  "com.typesafe.play" %% "play" % PlayVersion,
+  "com.typesafe.play" %% "routes-compiler" % PlayVersion,
+  "io.swagger" % "swagger-core" % SwaggerVersion,
+  "io.swagger" %% "swagger-scala-module" % "1.0.6",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.9",
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
+  "org.slf4j" % "slf4j-api" % "1.7.21",
 
-mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
+  "com.typesafe.play" %% "play-ebean" % "5.0.2" % "test",
+  "org.specs2" %% "specs2-core" % Specs2Version % "test",
+  "org.specs2" %% "specs2-mock" % Specs2Version % "test",
+  "org.specs2" %% "specs2-junit" % Specs2Version % "test",
+  "org.mockito" % "mockito-core" % "2.21.0" % "test"
+)
 
-publishTo := {
-  if (version.value.trim.endsWith("SNAPSHOT"))
-    Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-  else
-    Some("Sonatype Nexus Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}
+// see https://github.com/scala/bug/issues/11813
+scalacOptions -= "-Wself-implicit"
 
+scalacOptions in Test ~= filterConsoleScalacOptions
 
-publishArtifact in Test := false
-publishMavenStyle := true
-pomIncludeRepository := { x => false }
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-organization := "io.swagger"
-resolvers += Resolver.sonatypeRepo("snapshots")
+parallelExecution in Test := false // Swagger uses global state which breaks parallel tests
+
 pomExtra := {
   <url>http://swagger.io</url>
   <licenses>
@@ -77,11 +72,33 @@ pomExtra := {
       <url>http://www.ft-software.net/</url>
     </developer>
     <developer>
-      <id>notflorian</id>
-      <name>Florian Fauvarque</name>
-      <email>florian.fauvarque@gmail.com</email>
+      <id>gmethvin</id>
+      <name>Greg Methvin</name>
+      <url>https://methvin.net/</url>
     </developer>
   </developers>
 }
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+publishTo := sonatypePublishTo.value
+
+publishArtifact in Test := false
+pomIncludeRepository := { _ => false }
+publishMavenStyle := true
+releaseCrossBuild := true
+
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("+publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)

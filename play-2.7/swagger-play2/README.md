@@ -3,9 +3,25 @@
 # Swagger Play2 Module
 
 ## Overview
-This is a module to support the play2 framework from [playframework](http://www.playframework.org).  It is written in scala but can be used with either java or scala-based play2 applications.
+This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. This library uses Swagger 1.5 and supports Play 2.6 (version 1.0.x) and Play 2.7 (version 2.0.x). It can be used for both Scala and Java based applications.
+
+We also would like to support Swagger 2.0 in the future and contributions to that end will be gladly accepted.
 
 ## Version History
+
+* swagger-play2 2.0.1-SNAPSHOT supports play 2.6/2.7 and swagger 2.0. Merged from fork https://github.com/Iterable/swagger-play
+
+###New and Noteworthy
+ 
+ - Minimal dependencies: only depends on the core Play module, so it won't bring unnecessary dependencies on the Akka HTTP server or anything else from Play.
+ - `SwaggerPlugin` no longer depends on on `Application`.
+ - Correct `Content-Length` generation for JSON (originally proposed in https://github.com/swagger-api/swagger-play/pull/176)
+ - No longer uses deprecated Play configuration methods (proposed in https://github.com/swagger-api/swagger-play/pull/162). Also uses `reference.conf` for default values.
+ - Clarifies compile-time DI docs (proposed in https://github.com/swagger-api/swagger-play/pull/157)
+ - Handle route delegation properly (https://github.com/swagger-api/swagger-play/pull/132 updated for Play 2.6)
+ - Add support for `dataTypeClass` in `ApiImplicitParam` (https://github.com/swagger-api/swagger-play/pull/174)
+ - Add support for API keys (https://github.com/swagger-api/swagger-play/pull/117)
+ - Add support for OAuth2 (https://github.com/swagger-api/swagger-play/pull/183)
 
 * swagger-play2 1.7.1 supports play 2.7 and swagger 2.0.
 
@@ -34,7 +50,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "io.swagger" %% "swagger-play2" % "1.7.1"
+  "io.swagger" %% "swagger-play2" % "2.0.1"
 )
 ```
 
@@ -130,7 +146,12 @@ swagger.api.info = {
 ## Note on Dependency Injection
 This plugin works by default if your application uses Runtime dependency injection.
 
-Nevertheless, a helper is provided `SwaggerApplicationLoader` to ease the use of this plugin with Compile Time Dependency Injection. 
+Nevertheless, the plugin can be initialized using compile time dependency injection. For example, you can add the following to your class that extends `BuiltInComponentsFromContext`:
+```
+// This needs to be eagerly instantiated because this sets global state for swagger
+val swaggerPlugin = new SwaggerPluginImpl(environment, configuration)
+lazy val apiHelpController = new ApiHelpController(controllerComponents, swaggerPlugin)
+```
 
 
 ## License
