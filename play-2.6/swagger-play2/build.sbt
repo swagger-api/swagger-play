@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "io.swagger"         % "swagger-core"               % "1.5.22",
   "io.swagger"        %% "swagger-scala-module"       % "1.0.5",
   "com.typesafe.play" %% "routes-compiler"            % "2.6.0",
+  "uk.com.robust-it"   % "cloning"                    % "1.9.2",
   "com.typesafe.play" %% "play-ebean"                 % "4.0.2"            % "test",
   "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
   "org.specs2"        %% "specs2-mock"                % "3.8.7"            % "test",

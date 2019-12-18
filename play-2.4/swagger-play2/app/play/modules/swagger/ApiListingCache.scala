@@ -1,5 +1,6 @@
 package play.modules.swagger
 
+import com.rits.cloning.Cloner
 import io.swagger.config._
 import io.swagger.models.Swagger
 import play.api.Logger
@@ -8,6 +9,8 @@ object ApiListingCache {
   var cache: Option[Swagger] = None
 
   def listing(docRoot: String, host: String): Option[Swagger] = {
+    val cloner = new Cloner();
+
     cache.orElse {
       Logger("swagger").debug("Loading API metadata")
 
@@ -24,10 +27,14 @@ object ApiListingCache {
           // no config, do nothing
         }
       }
+
       cache = Some(swagger)
-      cache
+      val clone = cloner.deepClone(cache)
+      clone
     }
+
     cache.get.setHost(host)
-    cache
+    val clone = cloner.deepClone(cache)
+    clone
   }
 }
