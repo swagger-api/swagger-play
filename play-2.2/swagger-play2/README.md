@@ -94,3 +94,7 @@ with `ApiParamImplicit` annotations.  If they are `queryParam`s or `pathParam`s,
 ### Sample Application
 
 Please take a look [here](https://github.com/wordnik/swagger-core/tree/master/samples/scala-play2) for a full sample application using the Swagger Play2 module. 
+
+## Security contact
+
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.

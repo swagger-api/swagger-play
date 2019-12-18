@@ -91,3 +91,7 @@ This will "attach" the /api-docs/pet api to the swagger resource listing, and th
 Swagger for play has two types of `ApiParam`s--they are `ApiParam` and `ApiParamImplicit`.  The distinction is that some
 paramaters (variables) are passed to the method implicitly by the framework.  ALL body parameters need to be described
 with `ApiParamImplicit` annotations.  If they are `queryParam`s or `pathParam`s, you can use `ApiParam` annotations.
+
+## Security contact
+
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.

@@ -30,3 +30,7 @@ play deps --sync
 play build-module
 </pre>
 
+## Security contact
+
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
+

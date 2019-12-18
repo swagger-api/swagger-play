@@ -125,3 +125,7 @@ swagger.api.info = {
 This plugin works by default if your application uses Runtime dependency injection.
 
 Nevertheless, a helper is provided `SwaggerApplicationLoader` to ease the use of this plugin with Compile Time Dependency Injection. 
+
+## Security contact
+
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.

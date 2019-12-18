@@ -3,13 +3,13 @@
 # Swagger Play2 Module
 
 ## Overview
-This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. This library uses Swagger 1.5 and supports Play 2.6 (version 1.0.x) and Play 2.7 (version 2.0.x). It can be used for both Scala and Java based applications.
+This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. This library uses Swagger 1.5 and supports Play 2.7 (version 2.0.x). It can be used for both Scala and Java based applications.
 
 We also would like to support Swagger 2.0 in the future and contributions to that end will be gladly accepted.
 
 ## Version History
 
-* swagger-play2 2.0.1-SNAPSHOT supports play 2.6/2.7 and swagger 2.0. Merged from fork https://github.com/Iterable/swagger-play
+* swagger-play2 2.0.1-SNAPSHOT supports play 2.7 and swagger 2.0. Merged from fork https://github.com/Iterable/swagger-play
 
 ###New and Noteworthy
  
@@ -153,19 +153,6 @@ val swaggerPlugin = new SwaggerPluginImpl(environment, configuration)
 lazy val apiHelpController = new ApiHelpController(controllerComponents, swaggerPlugin)
 ```
 
+## Security contact
 
-## License
-
-```
-Copyright 2019 SmartBear Software
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
