@@ -6,7 +6,7 @@ import play.api.Environment
 import play.modules.swagger._
 import play.routes.compiler.Route
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 class PlayDelegatedApiScannerSpec extends Specification with Mockito with BeforeAfterAll {
 
@@ -14,7 +14,7 @@ class PlayDelegatedApiScannerSpec extends Specification with Mockito with Before
     SwaggerPluginHelper.parseRoutes("delegation", "/api", Environment.simple())
 
   val routesRules: Map[String, Route] = Map(routes.map { route: Route =>
-    (route.call.packageName.toSeq ++ Seq(route.call.controller + "$", route.call.method)).mkString(".") -> route
+    s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}" -> route
   }: _*)
 
   val swaggerConfig = PlaySwaggerConfig.defaultReference.copy(

@@ -6,7 +6,7 @@ import play.api.Environment
 import play.modules.swagger._
 import play.routes.compiler.{Route => PlayRoute}
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 class PlayApiScannerSpec extends Specification with Mockito {
 
