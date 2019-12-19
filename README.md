@@ -2,6 +2,12 @@
 
 # Swagger Play2 Module
 
+## Note
+
+This branch (`master`) holds the latest version (major version `2.x`) for latest play version supported (`2.7`); branch [play-2.6](https://github.com/swagger-api/swagger-play/tree/play-2.6) holds the swagger-play version for play `2.6` version (major.minor version `1.6.x`).
+
+Older versions are available though not anymore supported in the [archive](https://github.com/swagger-api/swagger-play/tree/archive) branch.
+
 ## Overview
 
 This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. It is based on the library https://github.com/swagger-api/swagger-play with several improvements. This library uses Swagger 1.5 and Play 2.7. It can be used for both Scala and Java based applications.
