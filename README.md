@@ -9,7 +9,7 @@ This is a module to support Swagger annotations within [Play Framework](http://w
 We also would like to support Swagger 2.0 in the future and contributions to that end will be gladly accepted.
 
 
-###New and Noteworthy
+### New and Noteworthy
  
  - Minimal dependencies: only depends on the core Play module, so it won't bring unnecessary dependencies on the Akka HTTP server or anything else from Play.
  - `SwaggerPlugin` no longer depends on on `Application`.
@@ -21,8 +21,7 @@ We also would like to support Swagger 2.0 in the future and contributions to tha
  - Add support for API keys (https://github.com/swagger-api/swagger-play/pull/117)
  - Add support for OAuth2 (https://github.com/swagger-api/swagger-play/pull/183)
 
-Usage
------
+## Usage
 
 You can depend on pre-built libraries in maven central by adding the following dependency:
 
@@ -104,7 +103,7 @@ paramaters (variables) are passed to the method implicitly by the framework.  AL
 with `ApiImplicitParam` annotations.  If they are `queryParam`s or `pathParam`s, you can use `ApiParam` annotations.
 
 
-# application.conf - config options
+## application.conf - config options
 ```
 api.version (String) - version of API | default: "beta"
 swagger.api.basepath (String) - base url | default: "http://localhost:9000"
