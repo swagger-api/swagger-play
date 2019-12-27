@@ -1,11 +1,11 @@
 name := "swagger-play2"
 organization := "io.swagger"
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.12.6"
 
-crossScalaVersions := Seq(scalaVersion.value, "2.12.10")
+crossScalaVersions := Seq(scalaVersion.value, "2.11.12")
 
-val PlayVersion = "2.7.3"
+val PlayVersion = "2.6.17"
 val SwaggerVersion = "1.5.24"
 val Specs2Version = "4.6.0"
 

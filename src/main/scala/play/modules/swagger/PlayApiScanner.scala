@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils
 import play.api.Environment
 import play.api.Logger
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 /**
   * Identifies Play Controllers annotated as Swagger API's.
@@ -72,7 +72,7 @@ class PlayApiScanner @Inject()(config: PlaySwaggerConfig, routes: RouteWrapper, 
 
     // get controller names from application routes
     val controllers = routes.getAll.toSeq.map { case (_, route) =>
-      (route.call.packageName.toSeq :+ route.call.controller).mkString(".")
+      s"${route.call.packageName}.${route.call.controller}"
     }.distinct
 
 

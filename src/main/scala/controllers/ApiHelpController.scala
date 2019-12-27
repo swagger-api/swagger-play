@@ -29,7 +29,7 @@ import play.api.http.ContentTypes
 import play.api.mvc._
 import play.modules.swagger.SwaggerPlugin
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 object ErrorResponse {
   val ERROR = 1
@@ -145,7 +145,7 @@ trait SwaggerBaseApiController {
       case Some(filter) => f.filter(specs, filter, queryParams.asJava, cookies, headers)
       case None => specs
     }
-    clone.setPaths(clone.getPaths.asScala.filter(_._1.startsWith(pathPart)).asJava)
+    clone.setPaths(clone.getPaths.asScala.filterKeys(_.startsWith(pathPart) ).asJava)
     clone
   }
 

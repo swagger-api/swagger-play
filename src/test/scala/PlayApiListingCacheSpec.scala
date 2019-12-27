@@ -11,9 +11,8 @@ import play.api.Logger
 import play.api.Environment
 import io.swagger.util.Json
 import org.specs2.specification.BeforeAfterAll
-import play.routes.compiler.Route
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 import play.routes.compiler.{Route => PlayRoute}
 
 class PlayApiListingCacheSpec extends Specification with Mockito with BeforeAfterAll {
@@ -36,9 +35,13 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
     }
   }
 
-  val routesRules: Map[String, Route] = Map(routesList.map { route: Route =>
-    (route.call.packageName.toSeq ++ Seq(route.call.controller + "$", route.call.method)).mkString(".") -> route
-  }: _*)
+  val routesRules = Map(routesList map
+  { route =>
+    {
+      val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
+      routeName -> route
+    }
+  } : _*)
 
   val apiVersion = "test1"
   val basePath = "/api"
@@ -74,7 +77,7 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
 
       val swagger = apiListingCache.listing("127.0.0.1")
 
-      Logger("swagger").debug("swagger: " + toJsonString(swagger))
+      Logger.debug ("swagger: " + toJsonString(swagger))
 
       swagger.getSwagger must beEqualTo("2.0")
       swagger.getBasePath must beEqualTo(basePath)

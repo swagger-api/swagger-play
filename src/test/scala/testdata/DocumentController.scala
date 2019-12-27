@@ -1,13 +1,12 @@
 package testdata
 
 import io.swagger.annotations._
-import play.api.mvc.BaseController
-import play.api.mvc.ControllerComponents
-import play.mvc.Http
-import play.mvc.Result
+
+import play.api.mvc.Controller
+import play.mvc.{Result, Http}
 
 @Api(value = "/apitest/document", description = "documents", tags = Array("Documents"))
-class DocumentController(override val controllerComponents: ControllerComponents) extends BaseController {
+class DocumentController extends Controller {
 
   @ApiOperation(value = "Register acceptance of a file on a settlement",
     notes = "Accept file",

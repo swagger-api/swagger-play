@@ -10,7 +10,7 @@ Older versions are available though not anymore supported in the [archive](https
 
 ## Overview
 
-This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. It is based on the library https://github.com/swagger-api/swagger-play with several improvements. This library uses Swagger 1.5 and Play 2.7. It can be used for both Scala and Java based applications.
+This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. It is based on the library https://github.com/swagger-api/swagger-play with several improvements. This library uses Swagger 1.5 and Play 2.6. It can be used for both Scala and Java based applications.
 
 We also would like to support Swagger 2.0 in the future and contributions to that end will be gladly accepted.
 
@@ -25,15 +25,25 @@ We also would like to support Swagger 2.0 in the future and contributions to tha
  - Handle route delegation properly (https://github.com/swagger-api/swagger-play/pull/132 updated for Play 2.6)
  - Add support for `dataTypeClass` in `ApiImplicitParam` (https://github.com/swagger-api/swagger-play/pull/174)
  - Add support for API keys (https://github.com/swagger-api/swagger-play/pull/117)
+<<<<<<< HEAD
  - Add support for OAuth2 (https://github.com/swagger-api/swagger-play/pull/183)
 
 ## Usage
+=======
+ 
+Usage
+-----
+>>>>>>> 32d3d11b9b19c7dccf1052fe63a6f7edc397cf8a
 
 You can depend on pre-built libraries in maven central by adding the following dependency:
 
 ```
 libraryDependencies ++= Seq(
+<<<<<<< HEAD
   "io.swagger" %% "swagger-play2" % "2.0.1-SNAPSHOT"
+=======
+  "io.swagger" %% "swagger-play2" % "1.6.2-SNAPSHOT"
+>>>>>>> 32d3d11b9b19c7dccf1052fe63a6f7edc397cf8a
 )
 ```
 

@@ -6,7 +6,7 @@ import play.api.mvc.ActionBuilder
 import play.api.mvc.ControllerHelpers
 
 @Api
-class DelegatedController extends ControllerHelpers {
+object DelegatedController extends ControllerHelpers {
 
   import scala.concurrent.ExecutionContext.Implicits.global
   private val Action = new ActionBuilder.IgnoringBody()

@@ -1,13 +1,13 @@
 package testdata
 
 import io.swagger.annotations._
-import play.api.mvc.BaseController
-import play.api.mvc.ControllerComponents
+
+import play.api.mvc.{Action, Controller}
 
 @Api(value = "/apitest/cats", description = "play with cats")
 @SwaggerDefinition(securityDefinition = new SecurityDefinition(oAuth2Definitions = Array(new OAuth2Definition(key = "oauth2",
   flow = OAuth2Definition.Flow.APPLICATION, tokenUrl= "/oauth/token", authorizationUrl = "/authorize", scopes = Array(new Scope(name = "write_pets", description = "modify pets"))))))
-class CatController(override val controllerComponents: ControllerComponents) extends BaseController {
+class CatController extends Controller {
 
   @ApiOperation(value = "addCat1",
       httpMethod = "PUT",
