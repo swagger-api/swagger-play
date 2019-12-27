@@ -52,6 +52,12 @@ class PlayApiScanner @Inject()(config: PlaySwaggerConfig, routes: RouteWrapper, 
         .name(config.license)
         .url(config.licenseUrl))
     }
+
+    val vendorExtensions = config.vendorExtensions.map { extension =>
+      extension.name -> extension.value
+    }.toMap.asJava
+
+    info.setVendorExtensions(vendorExtensions)
     swagger.info(info)
   }
 
