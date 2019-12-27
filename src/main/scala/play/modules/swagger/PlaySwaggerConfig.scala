@@ -4,6 +4,10 @@ import com.typesafe.config.Config
 import javax.annotation.Nullable
 import play.api.Configuration
 
+import scala.collection.JavaConverters._
+
+case class Extension(name: String, value: AnyRef)
+
 case class PlaySwaggerConfig(
   title: String,
   version: String,
@@ -15,7 +19,8 @@ case class PlaySwaggerConfig(
   host: String,
   basePath: String,
   schemes: Seq[String],
-  filterClass: Option[String]
+  filterClass: Option[String],
+  vendorExtensions: List[Extension]
 ) {
   // Java APIs for reading the configuration
   def getSchemes: Array[String] = schemes.toArray
@@ -37,7 +42,12 @@ object PlaySwaggerConfig {
       termsOfServiceUrl = configuration.get[String]("swagger.api.info.termsOfServiceUrl"),
       license = configuration.get[String]("swagger.api.info.license"),
       licenseUrl = configuration.get[String]("swagger.api.info.licenseUrl"),
-      filterClass = configuration.get[Option[String]]("swagger.filter")
+      filterClass = configuration.get[Option[String]]("swagger.filter"),
+      vendorExtensions = configuration.get[Option[Config]]("swagger.api.info").toList.map(_.entrySet()).flatMap { entries =>
+        entries.asScala.filter(_.getKey.startsWith("x-")).map { entry =>
+          Extension(entry.getKey, entry.getValue.unwrapped())
+        }.toList.reverse
+      }
     )
   }
 
