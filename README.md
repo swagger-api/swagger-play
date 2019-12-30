@@ -2,6 +2,12 @@
 
 # Swagger Play2 Module
 
+## Note
+
+This branch (`master`) holds the latest version (major version `2.x`) for latest play version supported (`2.7`); branch [play-2.6](https://github.com/swagger-api/swagger-play/tree/play-2.6) holds the swagger-play version for play `2.6` version (major.minor version `1.6.x`).
+
+Older versions are available though not anymore supported in the [archive](https://github.com/swagger-api/swagger-play/tree/archive) branch.
+
 ## Overview
 
 This is a module to support Swagger annotations within [Play Framework](http://www.playframework.org) controllers. It is based on the library https://github.com/swagger-api/swagger-play with several improvements. This library uses Swagger 1.5 and Play 2.6. It can be used for both Scala and Java based applications.
@@ -9,7 +15,7 @@ This is a module to support Swagger annotations within [Play Framework](http://w
 We also would like to support Swagger 2.0 in the future and contributions to that end will be gladly accepted.
 
 
-###New and Noteworthy
+### New and Noteworthy
  
  - Minimal dependencies: only depends on the core Play module, so it won't bring unnecessary dependencies on the Akka HTTP server or anything else from Play.
  - `SwaggerPlugin` no longer depends on on `Application`.
@@ -19,15 +25,25 @@ We also would like to support Swagger 2.0 in the future and contributions to tha
  - Handle route delegation properly (https://github.com/swagger-api/swagger-play/pull/132 updated for Play 2.6)
  - Add support for `dataTypeClass` in `ApiImplicitParam` (https://github.com/swagger-api/swagger-play/pull/174)
  - Add support for API keys (https://github.com/swagger-api/swagger-play/pull/117)
+<<<<<<< HEAD
+ - Add support for OAuth2 (https://github.com/swagger-api/swagger-play/pull/183)
+
+## Usage
+=======
  
 Usage
 -----
+>>>>>>> 32d3d11b9b19c7dccf1052fe63a6f7edc397cf8a
 
 You can depend on pre-built libraries in maven central by adding the following dependency:
 
 ```
 libraryDependencies ++= Seq(
+<<<<<<< HEAD
+  "io.swagger" %% "swagger-play2" % "2.0.1-SNAPSHOT"
+=======
   "io.swagger" %% "swagger-play2" % "1.6.2-SNAPSHOT"
+>>>>>>> 32d3d11b9b19c7dccf1052fe63a6f7edc397cf8a
 )
 ```
 
@@ -103,7 +119,7 @@ paramaters (variables) are passed to the method implicitly by the framework.  AL
 with `ApiImplicitParam` annotations.  If they are `queryParam`s or `pathParam`s, you can use `ApiParam` annotations.
 
 
-# application.conf - config options
+## application.conf - config options
 ```
 api.version (String) - version of API | default: "beta"
 swagger.api.basepath (String) - base url | default: "http://localhost:9000"

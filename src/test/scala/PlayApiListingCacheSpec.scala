@@ -1,5 +1,6 @@
 import java.io.File
 
+import com.typesafe.config.ConfigValueFactory
 import io.swagger.config.ScannerFactory
 import io.swagger.models.{HttpMethod, ModelImpl}
 import io.swagger.models.parameters.{BodyParameter, PathParameter, QueryParameter}
@@ -57,7 +58,8 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
     license = "license",
     licenseUrl = "http://licenseUrl",
     filterClass = None,
-    schemes = Seq.empty
+    schemes = Seq.empty,
+    vendorExtensions = List(Extension("x-api-key","test"), Extension("x-tags", java.util.Arrays.asList("api", "secure","test")))
   )
 
   val env = Environment.simple()
@@ -90,6 +92,7 @@ PUT /api/dog/api/:id testdata.DogController.add0(id:String)
       swagger.getInfo.getTermsOfService must beEqualTo(swaggerConfig.termsOfServiceUrl)
       swagger.getInfo.getLicense.getName must beEqualTo(swaggerConfig.license)
       swagger.getSecurityDefinitions.size() must beEqualTo(1)
+      swagger.getInfo.getVendorExtensions.size() must beEqualTo(2)
 
       val pathDoc = swagger.getPaths.get("/document/{settlementId}/files/{fileId}/accept")
       pathDoc.getOperations.size must beEqualTo(1)

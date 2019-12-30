@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
   "org.slf4j" % "slf4j-api" % "1.7.21",
 
-  "com.typesafe.play" %% "play-ebean" % "5.0.2" % "test",
+  "com.typesafe.play" %% "play-ebean" % "5.0.1" % "test",
   "org.specs2" %% "specs2-core" % Specs2Version % "test",
   "org.specs2" %% "specs2-mock" % Specs2Version % "test",
   "org.specs2" %% "specs2-junit" % Specs2Version % "test",
