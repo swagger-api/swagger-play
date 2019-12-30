@@ -68,7 +68,7 @@ class SwaggerPluginImpl @Inject()(environment: Environment, configuration: Confi
   lazy val swaggerSpecFilter: Option[SwaggerSpecFilter] = config.filterClass match {
     case Some(e) if e.nonEmpty =>
       try {
-        val filter = environment.classLoader.loadClass(e).newInstance.asInstanceOf[SwaggerSpecFilter]
+        val filter = environment.classLoader.loadClass(e).getDeclaredConstructor().newInstance().asInstanceOf[SwaggerSpecFilter]
         logger.debug("Setting swagger.filter to %s".format(e))
         Some(filter)
       } catch {
