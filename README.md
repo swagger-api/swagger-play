@@ -2,9 +2,14 @@
 
 # Swagger Play2 Module
 
-## Note
+## Compatibility
 
-This branch (`master`) holds the latest version (major version `2.x`) for latest play version supported (`2.7`); branch [play-2.6](https://github.com/swagger-api/swagger-play/tree/play-2.6) holds the swagger-play version for play `2.6` version (major.minor version `1.6.x`).
+
+Swagger Play Version | Play Version | Branch
+---------------------| ------------ | ------
+3.0.0 | 2.8 | [master](https://github.com/swagger-api/swagger-play/tree/master)
+2.0.0 | 2.7 | [play27](https://github.com/swagger-api/swagger-play/tree/play-2.7)
+1.6.x | 2.6 | [play26](https://github.com/swagger-api/swagger-play/tree/play-2.6)
 
 Older versions are available though not anymore supported in the [archive](https://github.com/swagger-api/swagger-play/tree/archive) branch.
 
@@ -33,7 +38,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "io.swagger" %% "swagger-play2" % "2.0.1-SNAPSHOT"
+  "io.swagger" %% "swagger-play2" % "3.0.1-SNAPSHOT"
 )
 ```
 
