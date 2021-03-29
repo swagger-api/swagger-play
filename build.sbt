@@ -1,104 +1,47 @@
-name := "swagger-play2"
-organization := "io.swagger"
+resolvers in ThisBuild += "Artima Maven Repository".at("https://repo.artima.com/releases")
 
-scalaVersion := "2.13.1"
+val playVersion = "2.8.7"
+val swaggerVersion = "2.1.7"
+val jacksonVersion = "2.11.0"
 
-crossScalaVersions := Seq(scalaVersion.value, "2.12.10")
+lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(name := "swagger-play")
+  .settings(
+    crossScalaVersions := Seq("2.12.11", "2.13.5"),
+    scalaVersion := crossScalaVersions.value.last,
+    scalacOptions ~=
+      (_.filterNot(Set(
+        "-Wdead-code",
+        "-Wunused:params",
+        "-Ywarn-dead-code",
+        "-Ywarn-unused:params",
+        "-Ywarn-unused:patvars",
+        "-Wunused:explicits"
+      )))
+  ).settings(
+    libraryDependencies ++= Seq(
+      "com.github.pureconfig"           %% "pureconfig"              % "0.14.0",
+      "com.typesafe.play"               %% "play"                    % playVersion,
+      "com.typesafe.play"               %% "routes-compiler"         % playVersion,
+      "org.scala-lang.modules"          %% "scala-java8-compat"      % "0.9.1",
+      "io.swagger.core.v3"               % "swagger-core"            % swaggerVersion,
+      "io.swagger.core.v3"               % "swagger-annotations"     % swaggerVersion,
+      "io.swagger.core.v3"               % "swagger-models"          % swaggerVersion,
+      "io.swagger.core.v3"               % "swagger-jaxrs2"          % swaggerVersion,
+      "com.fasterxml.jackson.module"    %% "jackson-module-scala"    % jacksonVersion,
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
+      "org.json4s"                      %% "json4s-native"           % "3.6.10",
+      "javax.ws.rs"                      % "javax.ws.rs-api"         % "2.0.1"
+    )
+  )
 
-val PlayVersion = "2.7.3"
-val SwaggerVersion = "1.5.24"
-val Specs2Version = "4.6.0"
-
-libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % PlayVersion,
-  "com.typesafe.play" %% "routes-compiler" % PlayVersion,
-  "io.swagger" % "swagger-core" % SwaggerVersion,
-  "io.swagger" %% "swagger-scala-module" % "1.0.6",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.9",
-  "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
-  "org.slf4j" % "slf4j-api" % "1.7.21",
-
-  "com.typesafe.play" %% "play-ebean" % "5.0.2" % "test",
-  "org.specs2" %% "specs2-core" % Specs2Version % "test",
-  "org.specs2" %% "specs2-mock" % Specs2Version % "test",
-  "org.specs2" %% "specs2-junit" % Specs2Version % "test",
-  "org.mockito" % "mockito-core" % "2.21.0" % "test"
-)
-
-// see https://github.com/scala/bug/issues/11813
-scalacOptions -= "-Wself-implicit"
-
-scalacOptions in Test ~= filterConsoleScalacOptions
-
-parallelExecution in Test := false // Swagger uses global state which breaks parallel tests
-
-pomExtra := {
-  <url>http://swagger.io</url>
-  <licenses>
-    <license>
-      <name>Apache License 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <url>git@github.com:swagger-api/swagger-play.git</url>
-    <connection>scm:git:git@github.com:swagger-api/swagger-play.git</connection>
-  </scm>
-  <developers>
-    <developer>
-      <id>fehguy</id>
-      <name>Tony Tam</name>
-      <email>fehguy@gmail.com</email>
-    </developer>
-    <developer>
-      <id>ayush</id>
-      <name>Ayush Gupta</name>
-      <email>ayush@glugbot.com</email>
-    </developer>
-    <developer>
-      <id>rayyildiz</id>
-      <name>Ramazan AYYILDIZ</name>
-      <email>rayyildiz@gmail.com</email>
-    </developer>
-    <developer>
-      <id>benmccann</id>
-      <name>Ben McCann</name>
-      <url>http://www.benmccann.com/</url>
-    </developer>
-    <developer>
-      <id>frantuma</id>
-      <name>Francesco Tumanischvili</name>
-      <url>http://www.ft-software.net/</url>
-    </developer>
-    <developer>
-      <id>gmethvin</id>
-      <name>Greg Methvin</name>
-      <url>https://methvin.net/</url>
-    </developer>
-  </developers>
-}
-
-publishTo := sonatypePublishTo.value
-
-publishArtifact in Test := false
-pomIncludeRepository := { _ => false }
-publishMavenStyle := true
-releaseCrossBuild := true
-
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("+publishSigned"),
-  setNextVersion,
-  commitNextVersion,
-  releaseStepCommand("sonatypeReleaseAll"),
-  pushChanges
-)
+inThisBuild(List(
+  organization := "io.kinoplan",
+  homepage := Some(url("https://github.com/kinoplan/swagger-play")),
+  licenses := Seq("Apache-2.0" -> url("https://opensource.org/licenses/Apache-2.0")),
+  developers :=
+    List(Developer("kinoplan", "Kinoplan", "job@kinoplan.ru", url("https://kinoplan.tech"))),
+  scmInfo := Some(ScmInfo(
+    url("https://github.com/kinoplan/swagger-play"),
+    "scm:git:git@github.com:kinoplan/swagger-play.git"
+  ))
+))

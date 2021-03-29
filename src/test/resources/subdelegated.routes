@@ -1,3 +1,0 @@
-GET    /my/action        testdata.DelegatedController.list3
-GET    /all              testdata.DelegatedController.list4
-GET    /                 testdata.DelegatedController.list5

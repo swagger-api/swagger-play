@@ -1,6 +1,11 @@
+resolvers in ThisBuild += "Artima Maven Repository".at("https://repo.artima.com/releases")
 
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.9")
+addSbtPlugin("com.artima.supersafe" % "sbtplugin" % "1.1.12")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.8.1")
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.17")
+
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.26")
+
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
+
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.7")

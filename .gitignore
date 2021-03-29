@@ -1,21 +1,14 @@
-ass
-*.log
+*
+!*/
+!*.*
 
-.idea/
-.idea_modules/
-*.iml
-
-# sbt specific
-dist/*
+.idea
 target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
-
-# Scala-IDE specific
-.scala_dependencies
-.project
-.settings
-.classpath
-# Scala-IDE specific
+**/target
+.DS_Store
+.bloop
+.metals
+.vscode
+*.sc
+.bsp/
+project/metals.sbt
