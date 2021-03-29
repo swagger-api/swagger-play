@@ -2,12 +2,10 @@ resolvers in ThisBuild += "Artima Maven Repository".at("https://repo.artima.com/
 
 val playVersion = "2.8.7"
 val swaggerVersion = "2.1.7"
-val jacksonVersion = "2.11.0"
 
 lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(name := "swagger-play")
   .settings(
-    crossScalaVersions := Seq("2.12.11", "2.13.5"),
-    scalaVersion := crossScalaVersions.value.last,
+    scalaVersion := "2.13.5",
     scalacOptions ~=
       (_.filterNot(Set(
         "-Wdead-code",
@@ -19,18 +17,16 @@ lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(nam
       )))
   ).settings(
     libraryDependencies ++= Seq(
-      "com.github.pureconfig"           %% "pureconfig"              % "0.14.0",
-      "com.typesafe.play"               %% "play"                    % playVersion,
-      "com.typesafe.play"               %% "routes-compiler"         % playVersion,
-      "org.scala-lang.modules"          %% "scala-java8-compat"      % "0.9.1",
-      "io.swagger.core.v3"               % "swagger-core"            % swaggerVersion,
-      "io.swagger.core.v3"               % "swagger-annotations"     % swaggerVersion,
-      "io.swagger.core.v3"               % "swagger-models"          % swaggerVersion,
-      "io.swagger.core.v3"               % "swagger-jaxrs2"          % swaggerVersion,
-      "com.fasterxml.jackson.module"    %% "jackson-module-scala"    % jacksonVersion,
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
-      "org.json4s"                      %% "json4s-native"           % "3.6.10",
-      "javax.ws.rs"                      % "javax.ws.rs-api"         % "2.0.1"
+      "com.github.pureconfig"        %% "pureconfig"           % "0.14.0",
+      "com.typesafe.play"            %% "play"                 % playVersion,
+      "com.typesafe.play"            %% "routes-compiler"      % playVersion,
+      "org.scala-lang.modules"       %% "scala-java8-compat"   % "0.9.1",
+      "io.swagger.core.v3"            % "swagger-core"         % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-annotations"  % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-models"       % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-jaxrs2"       % swaggerVersion,
+      "com.github.swagger-akka-http" %% "swagger-scala-module" % "2.3.0",
+      "javax.ws.rs"                   % "javax.ws.rs-api"      % "2.0.1"
     )
   )
 
