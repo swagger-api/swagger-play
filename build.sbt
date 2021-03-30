@@ -6,6 +6,7 @@ val swaggerVersion = "2.1.7"
 lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(name := "swagger-play")
   .settings(
     scalaVersion := "2.13.5",
+    crossScalaVersions := Seq("2.12.13", scalaVersion.value),
     scalacOptions ~=
       (_.filterNot(Set(
         "-Wdead-code",
@@ -17,16 +18,17 @@ lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(nam
       )))
   ).settings(
     libraryDependencies ++= Seq(
-      "com.github.pureconfig"        %% "pureconfig"           % "0.14.0",
-      "com.typesafe.play"            %% "play"                 % playVersion,
-      "com.typesafe.play"            %% "routes-compiler"      % playVersion,
-      "org.scala-lang.modules"       %% "scala-java8-compat"   % "0.9.1",
-      "io.swagger.core.v3"            % "swagger-core"         % swaggerVersion,
-      "io.swagger.core.v3"            % "swagger-annotations"  % swaggerVersion,
-      "io.swagger.core.v3"            % "swagger-models"       % swaggerVersion,
-      "io.swagger.core.v3"            % "swagger-jaxrs2"       % swaggerVersion,
-      "com.github.swagger-akka-http" %% "swagger-scala-module" % "2.3.0",
-      "javax.ws.rs"                   % "javax.ws.rs-api"      % "2.0.1"
+      "com.github.pureconfig"        %% "pureconfig"              % "0.14.0",
+      "com.typesafe.play"            %% "play"                    % playVersion,
+      "com.typesafe.play"            %% "routes-compiler"         % playVersion,
+      "org.scala-lang.modules"       %% "scala-java8-compat"      % "0.9.1",
+      "org.scala-lang.modules"       %% "scala-collection-compat" % "2.4.3",
+      "io.swagger.core.v3"            % "swagger-core"            % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-annotations"     % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-models"          % swaggerVersion,
+      "io.swagger.core.v3"            % "swagger-jaxrs2"          % swaggerVersion,
+      "com.github.swagger-akka-http" %% "swagger-scala-module"    % "2.3.0",
+      "javax.ws.rs"                   % "javax.ws.rs-api"         % "2.0.1"
     )
   )
 
