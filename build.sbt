@@ -18,7 +18,7 @@ lazy val root = project.in(file(".")).enablePlugins(ScalafixPlugin).settings(nam
       )))
   ).settings(
     libraryDependencies ++= Seq(
-      "com.github.pureconfig"        %% "pureconfig"              % "0.14.0",
+      "com.github.pureconfig"        %% "pureconfig"              % "0.17.1",
       "com.typesafe.play"            %% "play"                    % playVersion,
       "com.typesafe.play"            %% "routes-compiler"         % playVersion,
       "org.scala-lang.modules"       %% "scala-java8-compat"      % "0.9.1",
