@@ -1,3 +1,7 @@
+# Archived
+
+This project is no longer supported. 
+
 [![Build Status](https://travis-ci.org/swagger-api/swagger-play.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-play)
 
 # Swagger Play2 Module
